@@ -6,10 +6,13 @@ import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -97,20 +100,33 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		// Se agregan los listeners para los botones
 		btnSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				EnvironmentDao environmentDao = new EnvironmentDao();
-				environmentDao.saveEnvironment(environment.getTmAsString());
+				JFileChooser jFileChooser = new JFileChooser();
+				jFileChooser.setCurrentDirectory(new File("flat-files"));
+				jFileChooser.setSelectedFile(new File("environment"));
+				int retval = jFileChooser.showSaveDialog(EnvironmentUI.this);
+				if (retval == JFileChooser.APPROVE_OPTION) {
+					File file = jFileChooser.getSelectedFile();
+					EnvironmentDao environmentDao = new EnvironmentDao();				
+					environmentDao.saveEnvironment(environment.getTmAsString(), file);
+				}
 			}
 		});
 		btnLoad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				EnvironmentDao environmentDao = new EnvironmentDao();
-				String aux = environmentDao.getEnvironment();
-				environment.setTmFromString(aux);
+				JFileChooser jFileChooser = new JFileChooser();
+				jFileChooser.setCurrentDirectory(new File("flat-files"));
+				int retval = jFileChooser.showOpenDialog(EnvironmentUI.this);
+				if (retval == JFileChooser.APPROVE_OPTION) {
+					File file = jFileChooser.getSelectedFile();
+					EnvironmentDao environmentDao = new EnvironmentDao();
+					String aux = environmentDao.getEnvironment(file);
+					environment.setTmFromString(aux);
+				}
 			}
 		});
 		btnClear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				clearEnvironmnet();
+				environment.clear();
 			}
 		});
 		southPanel.add(btnSave);
@@ -130,21 +146,6 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		environment.setEnvironmentAction(EnvironmentActions
 				.getState((new Integer((String) e.getActionCommand()))
 						.intValue()));
-	}
-	
-	private void clearEnvironmnet() {
-		environment.setTm(environment.createTileMap(50, 30, 20, 20));
-		//Se setea la propiedad isTileCollisionEnabled a false para todas las celdas del tileMap
-		GGTileMap tm = environment.getTileMap();
-		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
-			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
-				Location locAux = new Location(i, j);
-				if (tm.isTileCollisionEnabled(locAux)) {
-					tm.setTileCollisionEnabled(locAux, false);
-				}				
-			}
-		}					
-		environment.refresh();		
 	}
 
 }

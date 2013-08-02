@@ -16,6 +16,7 @@ import tools.AdministratorConstants;
 import tools.EnvironmentActions;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GGActorCollisionListener;
+import ch.aplu.jgamegrid.GGBackground;
 import ch.aplu.jgamegrid.GGMouse;
 import ch.aplu.jgamegrid.GGMouseListener;
 import ch.aplu.jgamegrid.GGTileCollisionListener;
@@ -168,12 +169,26 @@ public abstract class Environment extends GameGrid implements
 			case GGMouse.lClick:
 				setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
 				break;
-			 case GGMouse.lDrag:
-				 setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
-			 break;
+			case GGMouse.lDrag:
+				setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+				break;
 			}
 		}
+		else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
+			paintCell();
+		}
 			return true;
+	}
+
+	protected void paintCell() {
+		// TODO Auto-generated method stub
+		GGBackground bg = getBg();
+	    Color c = getBgColor();
+	    bg.setPaintColor(Color.black);
+	    bg.fillCircle(new Point(500, 250), 150);
+	    bg.setPaintColor(c);
+	    bg.fillCircle(new Point(500, 250), 130);
+	    
 	}
 
 	public void setToTrueTileCollisionEnabledCel(int x, int y) {
@@ -203,6 +218,22 @@ public abstract class Environment extends GameGrid implements
 			}
 		}					
 //		refresh();			
+	}
+	
+	public void clear() {
+		setTm(createTileMap(50, 30, 20, 20));
+		//Se setea la propiedad isTileCollisionEnabled a false para todas las celdas del tileMap
+		GGTileMap tm = getTileMap();
+		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
+			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
+				Location locAux = new Location(i, j);
+				if (tm.isTileCollisionEnabled(locAux)) {
+					tm.setTileCollisionEnabled(locAux, false);
+				}				
+			}
+		}		
+		getBg().clear();
+		refresh();	
 	}
 
 }

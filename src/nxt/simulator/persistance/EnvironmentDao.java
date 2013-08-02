@@ -1,5 +1,6 @@
 package nxt.simulator.persistance;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -11,10 +12,11 @@ import nxt.simulator.Environment;
 
 public class EnvironmentDao {
 
-	public void saveEnvironment(String environment) {
+	public void saveEnvironment(String environment, File file) {
 		ObjectOutputStream oos;
         try {
-	        oos = new ObjectOutputStream(new FileOutputStream("flat-files/sample.dat"));
+			FileOutputStream fileOutputStream = new FileOutputStream(file);
+	        oos = new ObjectOutputStream(fileOutputStream);
 	        oos.writeObject(environment);
 	        oos.close();
 	        System.out.println("exito");
@@ -24,12 +26,12 @@ public class EnvironmentDao {
 	        e.printStackTrace();
         }	
 
-	}
+	}	
 	
-	public String getEnvironment() {
+	public String getEnvironment(File file) {
 		String savedEnvironment = "";
         try {
-	        ObjectInputStream ois = new ObjectInputStream(new FileInputStream("flat-files/sample.dat"));
+	        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 	        savedEnvironment = (String) ois.readObject();
 	        ois.close();
         } catch (FileNotFoundException e) {
@@ -40,6 +42,6 @@ public class EnvironmentDao {
 	        e.printStackTrace();
         }	
         return savedEnvironment;
-	}
+	}	
 	
 }
