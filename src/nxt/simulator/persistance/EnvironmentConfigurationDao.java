@@ -1,5 +1,6 @@
 package nxt.simulator.persistance;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,12 +8,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.HashMap;
+
+import ch.aplu.jgamegrid.Location;
 
 import nxt.simulator.Environment;
+import nxt.simulator.EnvironmentConfiguration;
 
-public class EnvironmentDao {
-
-	public void saveEnvironment(String environment, File file) {
+public class EnvironmentConfigurationDao {
+	
+	public void saveEnvironment(EnvironmentConfiguration environment, File file) {
 		ObjectOutputStream oos;
         try {
 			FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -25,14 +30,13 @@ public class EnvironmentDao {
         } catch (IOException e) {
 	        e.printStackTrace();
         }	
-
 	}	
 	
-	public String getEnvironment(File file) {
-		String savedEnvironment = "";
+	public EnvironmentConfiguration getEnvironment(File file) {
+		EnvironmentConfiguration savedEnvironment = null;
         try {
 	        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-	        savedEnvironment = (String) ois.readObject();
+	        savedEnvironment = (EnvironmentConfiguration) ois.readObject();
 	        ois.close();
         } catch (FileNotFoundException e) {
 	        e.printStackTrace();
@@ -45,3 +49,4 @@ public class EnvironmentDao {
 	}	
 	
 }
+

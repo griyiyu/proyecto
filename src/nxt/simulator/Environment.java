@@ -2,12 +2,11 @@ package nxt.simulator;
 
 import java.awt.Color;
 import java.awt.Point;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 
 import lejos.nxt.Motor;
 import lejos.nxt.MotorPort;
@@ -15,13 +14,11 @@ import lejos.nxt.Sensor;
 import tools.AdministratorConstants;
 import tools.EnvironmentActions;
 import ch.aplu.jgamegrid.Actor;
-import ch.aplu.jgamegrid.GGActorCollisionListener;
 import ch.aplu.jgamegrid.GGBackground;
 import ch.aplu.jgamegrid.GGMouse;
 import ch.aplu.jgamegrid.GGMouseListener;
 import ch.aplu.jgamegrid.GGTileCollisionListener;
 import ch.aplu.jgamegrid.GGTileMap;
-import ch.aplu.jgamegrid.GGToggleButtonListener;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
 
@@ -36,6 +33,7 @@ public abstract class Environment extends GameGrid implements
 	protected static double startDirection = START_DIRECTION;
 	protected static boolean isNavigationBar = false;
 	protected RobotCar nxt = new RobotCar(startLocation, "Brick.png");
+	protected EnvironmentConfiguration environmentConfiguration;
 
 	public EnvironmentActions getEnvironmentAction() {
 		return environmentAction;
@@ -62,7 +60,7 @@ public abstract class Environment extends GameGrid implements
 		setBgColor(new Color(56, 114, 114)); // (50, 100, 100) //(42, 85, 32));
 												// //(142, 207, 126));
 		// tm.setPosition(new Point(xMapStart, yMapStart));
-
+		environmentConfiguration = new EnvironmentConfiguration();
 		Sensor.setEnvironment(this);
 
 		addActor(nxt, startLocation, startDirection);
@@ -79,6 +77,7 @@ public abstract class Environment extends GameGrid implements
 		setNbVertCells(nbVertTiles);
 		setNbHorzCells(nbHorzTiles);
 		setBgColor(new Color(56, 114, 114));
+		environmentConfiguration = new EnvironmentConfiguration();
 		clearTileMap(getTm());
 	}
 
@@ -128,7 +127,7 @@ public abstract class Environment extends GameGrid implements
 		this.tm = tm;
 	}
 	
-	public String getTmAsString() {
+	public String getTMObstaclesAsString() {
 		String returnedString = "";
 		ArrayList<Location> locations = new ArrayList<Location>();
 		GGTileMap tm = getTileMap();
@@ -144,7 +143,7 @@ public abstract class Environment extends GameGrid implements
 		return returnedString;
 	}
 	
-	public void setTmFromString(String tiles) {
+	public void setTMObstaclesFromString(String tiles) {
         List<String> matches = new ArrayList<String>();
         Matcher m = Pattern.compile("\\d+,\\s\\d+").matcher(tiles);
         while(m.find()) {
@@ -162,6 +161,49 @@ public abstract class Environment extends GameGrid implements
         setTm(tileMap);
         refresh();
 	}
+	
+	public void refreshEnvironmentConfiguration() {
+		EnvironmentConfiguration environmentConfiguration = this.getEnvironmentConfiguration();
+		List<String> obstaclesPositions = environmentConfiguration.getObstacles();
+        GGTileMap tileMap = createTileMap(50, 30, 20, 20);
+        clearTileMap(tileMap);
+        for (String pos : obstaclesPositions) {
+        	String[] strs = pos.subSequence(1, pos.length() -1).toString().split(", ");
+        	int x = new Integer(strs[0]).intValue();
+        	int y = new Integer(strs[1]).intValue();
+    		tileMap.setImage("sprites/brick.gif", x, y);
+    		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
+        }
+		Map<String, Color> colorsPositions = environmentConfiguration.getColorsTM();
+        for (Map.Entry<String, Color> entry : colorsPositions.entrySet()) {
+        	String[] strs = entry.getKey().subSequence(1, entry.getKey().length() -1).toString().split(", ");
+        	int x = new Integer(strs[0]).intValue();
+        	int y = new Integer(strs[1]).intValue();
+        	paintCell(x, y);
+        }
+		
+
+        
+        setTm(tileMap);
+        refresh();
+		
+//		Matcher m = Pattern.compile("\\d+,\\s\\d+").matcher(tiles);
+//        while(m.find()) {
+//            matches.add(m.group());
+//        }
+//        GGTileMap tileMap = createTileMap(50, 30, 20, 20);
+//        clearTileMap(tileMap);
+//        for (String pos : matches) {
+//        	String[] strs = pos.split(", ");
+//        	int x = new Integer(strs[0]).intValue();
+//        	int y = new Integer(strs[1]).intValue();
+//    		tileMap.setImage("sprites/brick.gif", x, y);
+//    		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
+//        }
+//        setTm(tileMap);
+//        refresh();
+	}	
+	
 
 	public boolean mouseEvent(GGMouse mouse) {
 		if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
@@ -175,20 +217,59 @@ public abstract class Environment extends GameGrid implements
 			}
 		}
 		else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
-			paintCell();
+			switch (mouse.getEvent()) {
+			case GGMouse.lClick:
+				paintCell(mouse.getX(), mouse.getY());
+				break;
+			case GGMouse.lDrag:
+				paintCell(mouse.getX(), mouse.getY());
+				break;
+			}			
+//			paintCell();
 		}
 			return true;
 	}
 
 	protected void paintCell() {
-		// TODO Auto-generated method stub
 		GGBackground bg = getBg();
 	    Color c = getBgColor();
 	    bg.setPaintColor(Color.black);
 	    bg.fillCircle(new Point(500, 250), 150);
 	    bg.setPaintColor(c);
 	    bg.fillCircle(new Point(500, 250), 130);
-	    
+	    refresh();
+	}
+
+	protected void paintCell(int x, int y) {
+		int posTileX = x / 20;
+		int posTileY = y / 20;
+		int posX = posTileX * AdministratorConstants.TILE_WIDTH;
+		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
+		
+		GGBackground bg = getBg();
+	    Color c = Color.black;
+	    bg.setPaintColor(c);
+	    bg.fillRectangle(new Point(posX, posY), 
+	    		new Point(posX + AdministratorConstants.TILE_WIDTH, posY + AdministratorConstants.TILE_WIDTH));
+//	    bg.fillCircle(new Point(500, 250), 150);
+//	    bg.setPaintColor(c);
+//	    bg.fillCircle(new Point(500, 250), 130);
+//	    colorsTM.put(new Location(posTileX, posTileY), Color.black);
+	    //Se agrega la localización en la configuración
+	    Location location = new Location(posX, posY);
+	    getEnvironmentConfiguration().addColor(location.toString(), c);
+//	    show();
+	    refresh();
+	}
+	
+	
+	public EnvironmentConfiguration getEnvironmentConfiguration() {
+		return environmentConfiguration;
+	}
+
+	public void setEnvironmentConfiguration(
+			EnvironmentConfiguration environmentConfiguration) {
+		this.environmentConfiguration = environmentConfiguration;
 	}
 
 	public void setToTrueTileCollisionEnabledCel(int x, int y) {
@@ -199,9 +280,11 @@ public abstract class Environment extends GameGrid implements
 
 		int posTileX = x / 20;
 		int posTileY = y / 20;
+		Location location = new Location(posTileX, posTileY);
 		getTileMap().setImage("sprites/brick.gif", posTileX, posTileY);
-		getTileMap().setTileCollisionEnabled(new Location(posTileX, posTileY),
-				true);
+		getTileMap().setTileCollisionEnabled(location, true);
+		// Se agrega la localizacion a la configuracion
+		getEnvironmentConfiguration().addObstacle(location.toString());
 		refresh();
 	}
 	

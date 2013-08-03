@@ -52,6 +52,9 @@ public interface AdministratorConstants {
     /** Color sensor data BLANK/Background value index. */
     public static final int BLANK_INDEX = 3;
     
+    //Tiles
+    public static final int TILE_WIDTH = 20;
+    
     //Directions
     public static enum Direction{
    	  	

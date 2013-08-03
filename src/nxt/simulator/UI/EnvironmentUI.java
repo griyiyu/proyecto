@@ -7,7 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
-import java.io.FileOutputStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -18,12 +17,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import nxt.simulator.Environment;
+import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentTest;
-import nxt.simulator.persistance.EnvironmentDao;
+import nxt.simulator.persistance.EnvironmentConfigurationDao;
 import tools.EnvironmentActions;
 import ch.aplu.jgamegrid.GGMouse;
-import ch.aplu.jgamegrid.GGTileMap;
-import ch.aplu.jgamegrid.Location;
 
 public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
@@ -89,7 +87,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		// Se agregan las opciones al panel izquierdo
 		leftPanel.add(adddButton);
 		leftPanel.add(paintButton);
-
+		
 		// Se crea el panel inferior con los botones
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
@@ -106,8 +104,11 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				int retval = jFileChooser.showSaveDialog(EnvironmentUI.this);
 				if (retval == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
-					EnvironmentDao environmentDao = new EnvironmentDao();				
-					environmentDao.saveEnvironment(environment.getTmAsString(), file);
+					EnvironmentConfiguration environmentConfiguration = environment.getEnvironmentConfiguration();
+					EnvironmentConfigurationDao environmentConfigurationDao = new EnvironmentConfigurationDao();
+					environmentConfigurationDao.saveEnvironment(environmentConfiguration, file);
+								
+					
 				}
 			}
 		});
@@ -118,9 +119,11 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				int retval = jFileChooser.showOpenDialog(EnvironmentUI.this);
 				if (retval == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
-					EnvironmentDao environmentDao = new EnvironmentDao();
-					String aux = environmentDao.getEnvironment(file);
-					environment.setTmFromString(aux);
+					EnvironmentConfigurationDao environmentConfigurationDao = new EnvironmentConfigurationDao();
+					EnvironmentConfiguration aux = environmentConfigurationDao.getEnvironment(file);
+					environment.clear();
+					environment.setEnvironmentConfiguration(aux);
+					environment.refreshEnvironmentConfiguration();
 				}
 			}
 		});
