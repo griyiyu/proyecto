@@ -52,6 +52,8 @@ public abstract class Environment extends GameGrid implements
 	private final int yMapStart = 0;
 
 	private EnvironmentActions environmentAction = EnvironmentActions.ADD;
+	
+	protected Color color = new Color(YELLOW);
 
 	public Environment(Location startLocation, double startDirection) {
 		super(width, high, 1, null, null, isNavigationBar, 60);
@@ -179,7 +181,7 @@ public abstract class Environment extends GameGrid implements
         	String[] strs = entry.getKey().subSequence(1, entry.getKey().length() -1).toString().split(", ");
         	int x = new Integer(strs[0]).intValue();
         	int y = new Integer(strs[1]).intValue();
-        	paintCell(x, y);
+        	paintCell(x, y, entry.getValue());
         }
 		
 
@@ -233,7 +235,7 @@ public abstract class Environment extends GameGrid implements
 	protected void paintCell() {
 		GGBackground bg = getBg();
 	    Color c = getBgColor();
-	    bg.setPaintColor(Color.black);
+	    bg.setPaintColor(color);
 	    bg.fillCircle(new Point(500, 250), 150);
 	    bg.setPaintColor(c);
 	    bg.fillCircle(new Point(500, 250), 130);
@@ -247,8 +249,8 @@ public abstract class Environment extends GameGrid implements
 		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
 		
 		GGBackground bg = getBg();
-	    Color c = Color.black;
-	    bg.setPaintColor(c);
+	    //Color color = Color.black;
+	    bg.setPaintColor(color);
 	    bg.fillRectangle(new Point(posX, posY), 
 	    		new Point(posX + AdministratorConstants.TILE_WIDTH, posY + AdministratorConstants.TILE_WIDTH));
 //	    bg.fillCircle(new Point(500, 250), 150);
@@ -257,8 +259,25 @@ public abstract class Environment extends GameGrid implements
 //	    colorsTM.put(new Location(posTileX, posTileY), Color.black);
 	    //Se agrega la localización en la configuración
 	    Location location = new Location(posX, posY);
-	    getEnvironmentConfiguration().addColor(location.toString(), c);
+	    getEnvironmentConfiguration().addColor(location.toString(), color);
 //	    show();
+	    refresh();
+	}
+
+	protected void paintCell(int x, int y, Color color) {
+		int posTileX = x / 20;
+		int posTileY = y / 20;
+		int posX = posTileX * AdministratorConstants.TILE_WIDTH;
+		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
+		
+		GGBackground bg = getBg();
+	    //Color color = Color.black;
+	    bg.setPaintColor(color);
+	    bg.fillRectangle(new Point(posX, posY), 
+	    		new Point(posX + AdministratorConstants.TILE_WIDTH, posY + AdministratorConstants.TILE_WIDTH));
+	    //Se agrega la localización en la configuración
+	    Location location = new Location(posX, posY);
+	    getEnvironmentConfiguration().addColor(location.toString(), color);
 	    refresh();
 	}
 	
@@ -318,5 +337,16 @@ public abstract class Environment extends GameGrid implements
 		getBg().clear();
 		refresh();	
 	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+	
+	
+	
 
 }

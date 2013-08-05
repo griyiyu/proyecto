@@ -1,6 +1,7 @@
 package nxt.simulator.UI;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,7 @@ import java.io.File;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
@@ -21,7 +23,10 @@ import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentTest;
 import nxt.simulator.persistance.EnvironmentConfigurationDao;
 import tools.EnvironmentActions;
+import tools.EnvironmentColors;
 import ch.aplu.jgamegrid.GGMouse;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
@@ -65,7 +70,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
 		// Se crea el panel izquierdo con las opciones de creación de ambientes
 		JPanel leftPanel = new JPanel();
-		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
+		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS));
 		// Opción de agregar
 		JRadioButton adddButton = new JRadioButton("Agregar");
 		adddButton.setMnemonic(KeyEvent.VK_A);
@@ -87,6 +92,18 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		// Se agregan las opciones al panel izquierdo
 		leftPanel.add(adddButton);
 		leftPanel.add(paintButton);
+		
+		//Combobox de colores
+		final JComboBox colorsList = new JComboBox(EnvironmentColors.values());
+		colorsList.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent arg0) {
+				Color color = ((EnvironmentColors)colorsList.getSelectedItem()).getColor();
+				environment.setColor(color);
+			}
+		});
+		colorsList.setSelectedIndex(0);
+		colorsList.addActionListener(this);
+		leftPanel.add(colorsList);
 		
 		// Se crea el panel inferior con los botones
 		JPanel southPanel = new JPanel();
