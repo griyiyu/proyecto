@@ -257,6 +257,12 @@ public abstract class Environment extends GameGrid implements
 		case GGMouse.lRelease:
 			dragging = false;
 			addingOrPainting = false;
+			break;
+		case GGMouse.rPress:
+			if (clickOnRobot) {
+				rotateLeftNXT(15);
+			}
+			break;
 		}
 		return true;
 	}
@@ -270,7 +276,7 @@ public abstract class Environment extends GameGrid implements
 	    bg.fillCircle(new Point(500, 250), 130);
 	    refresh();
 	}
-
+	
 	protected void paintCell(int x, int y) {
 		int posTileX = x / 20;
 		int posTileY = y / 20;
@@ -298,6 +304,12 @@ public abstract class Environment extends GameGrid implements
 		getNxt().moveCar(x, y, getNxt().getDirection());
 		refresh();
 	}
+
+	protected void rotateLeftNXT(double angle) {
+		double newDirection = (getNxt().getDirection() + angle) % 360;
+		getNxt().moveCar(getNxt().getX(), getNxt().getY(), newDirection);
+		refresh();		
+	}	
 	
 	public RobotCar getNxt() {
 		return nxt;

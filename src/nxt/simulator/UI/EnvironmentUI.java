@@ -65,18 +65,18 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		JPanel centerPanel = new JPanel();
 		environment = new EnvironmentTest();
 		environment.addMouseListener(environment, GGMouse.lClick
-				| GGMouse.lDrag | GGMouse.lPress | GGMouse.lRelease);
+				| GGMouse.lDrag | GGMouse.lPress | GGMouse.lRelease 
+				| GGMouse.rPress);
 		centerPanel.add(environment, BorderLayout.CENTER);
 
 		// Se crea el panel izquierdo con las opciones de creación de ambientes
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS));
 		// Opción de agregar
-		JRadioButton adddButton = new JRadioButton("Agregar");
-		adddButton.setMnemonic(KeyEvent.VK_A);
-		adddButton
-				.setActionCommand(EnvironmentActions.ADD.getCode().toString());
-		adddButton.setSelected(true);
+		JRadioButton addButton = new JRadioButton("Agregar");
+		addButton.setMnemonic(KeyEvent.VK_A);
+		addButton.setActionCommand(EnvironmentActions.ADD.getCode().toString());
+		addButton.setSelected(true);
 		// Opción de pintar
 		JRadioButton paintButton = new JRadioButton("Pintar");
 		paintButton.setMnemonic(KeyEvent.VK_P);
@@ -84,13 +84,13 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				.toString());
 		// Se agrupan las opciones
 		ButtonGroup group = new ButtonGroup();
-		group.add(adddButton);
+		group.add(addButton);
 		group.add(paintButton);
 		// Se agregan los listeners para las opciones
-		adddButton.addActionListener(this);
+		addButton.addActionListener(this);
 		paintButton.addActionListener(this);
 		// Se agregan las opciones al panel izquierdo
-		leftPanel.add(adddButton);
+		leftPanel.add(addButton);
 		leftPanel.add(paintButton);
 		
 		//Combobox de colores
@@ -102,6 +102,8 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 			}
 		});
 		colorsList.setSelectedIndex(0);
+		colorsList.setPreferredSize(new Dimension(90,20));
+		colorsList.setMaximumSize(new Dimension(90,20));
 		colorsList.addActionListener(this);
 		leftPanel.add(colorsList);
 		

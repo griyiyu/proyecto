@@ -1,6 +1,7 @@
 package nxt.simulator.UI;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,7 @@ public class MainFrame extends JFrame {
 			public void run() {
 				try {
 					MainFrame frame = new MainFrame();
+					frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,6 +60,7 @@ public class MainFrame extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				EnvironmentUI pep = new EnvironmentUI();
 				desktopPane.add(pep);
+				pep.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
 				pep.setVisible(true);
 				pep.getEnvironment().addNXT();
 			}
@@ -98,7 +101,7 @@ public class MainFrame extends JFrame {
 		}
 		desktopPane.setBorder(new BorderImage(image));
 		*/
-		contentPane.add(desktopPane, BorderLayout.CENTER);
+		contentPane.add(desktopPane, BorderLayout.CENTER);	
 	}
 
 }
