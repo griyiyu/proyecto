@@ -1,7 +1,7 @@
 package tools;
 
 public enum EnvironmentActions {
-	NO_ACTION(0), ADD(1), PAINT(2);
+	NO_ACTION(0), ADD(1), PAINT(2), DRAG(3), RUN(4);
 
 	private int code;
 

@@ -49,9 +49,11 @@ public abstract class Environment extends GameGrid implements
 	private GGTileMap tm = createTileMap(nbHorzTiles, nbVertTiles, tileSize,
 			tileSize);
 	private final int xMapStart = 0;
-	private final int yMapStart = 0;
-
+	private final int yMapStart = 0;	
+ 
 	private EnvironmentActions environmentAction = EnvironmentActions.ADD;
+	private boolean dragging = false;
+	private boolean addingOrPainting = false;
 	
 	protected Color color = new Color(YELLOW);
 
@@ -74,15 +76,22 @@ public abstract class Environment extends GameGrid implements
 
 	public Environment() {
 		super();
-		setCellSize(20);
-		setGridColor(Color.red);
-		setNbVertCells(nbVertTiles);
-		setNbHorzCells(nbHorzTiles);
+//		setCellSize(20);
+//		setGridColor(Color.red);
+		setCellSize(1);
+		setNbVertCells(high); //nbVertTiles
+		setNbHorzCells(width); //nbHorzTiles		
 		setBgColor(new Color(56, 114, 114));
 		environmentConfiguration = new EnvironmentConfiguration();
 		clearTileMap(getTm());
 	}
 
+	public void addNXT() {
+		addActor(nxt, startLocation, startDirection);
+		addPart(new Motor(MotorPort.A));
+		addPart(new Motor(MotorPort.B));
+	}
+	
 	public void addPart(Part part) {
 		addActor(part, nxt.getPartLocation(part), startDirection);
 	}
@@ -208,28 +217,48 @@ public abstract class Environment extends GameGrid implements
 	
 
 	public boolean mouseEvent(GGMouse mouse) {
-		if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
-			switch (mouse.getEvent()) {
-			case GGMouse.lClick:
-				setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
-				break;
-			case GGMouse.lDrag:
-				setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
-				break;
+		boolean clickOnRobot = false;
+		RobotCar robot = (RobotCar)getOneActor(RobotCar.class);
+		if (robot!= null) {
+			//56pxX37px
+			if (mouse.getX() >= robot.getX() - robot.getHeight(0)  &&  mouse.getX() <= robot.getX() + robot.getHeight(0) && 
+					mouse.getY() >= robot.getY() - robot.getHeight(0) && mouse.getY() <= robot.getY() + robot.getHeight(0))
+			clickOnRobot = true;						
+		}			
+		switch (mouse.getEvent()) {
+		case GGMouse.lPress:
+			if (clickOnRobot) {
+				dragging = true;
+				moveNXT(mouse.getX(), mouse.getY());									
+			} else {
+				addingOrPainting = true;
 			}
-		}
-		else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
-			switch (mouse.getEvent()) {
-			case GGMouse.lClick:
-				paintCell(mouse.getX(), mouse.getY());
-				break;
-			case GGMouse.lDrag:
-				paintCell(mouse.getX(), mouse.getY());
-				break;
+			break;
+		case GGMouse.lClick:
+			if (!clickOnRobot) {
+				if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
+					setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+				} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
+					paintCell(mouse.getX(), mouse.getY());
+				}
+			}
+			break;
+		case GGMouse.lDrag:
+			if ((clickOnRobot && !addingOrPainting)|| dragging) {
+				moveNXT(mouse.getX(), mouse.getY());
+			} else if (!clickOnRobot){
+				if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
+					setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+				} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
+					paintCell(mouse.getX(), mouse.getY());
+				}
 			}			
-//			paintCell();
+			break;
+		case GGMouse.lRelease:
+			dragging = false;
+			addingOrPainting = false;
 		}
-			return true;
+		return true;
 	}
 
 	protected void paintCell() {
@@ -263,6 +292,21 @@ public abstract class Environment extends GameGrid implements
 //	    show();
 	    refresh();
 	}
+	
+	protected void moveNXT(int x, int y) {
+//		getNxt().setLocation(new Location(x,y));
+		getNxt().moveCar(x, y, getNxt().getDirection());
+		refresh();
+	}
+	
+	public RobotCar getNxt() {
+		return nxt;
+	}
+
+	public void setNxt(RobotCar nxt) {
+		this.nxt = nxt;
+	}
+	
 
 	protected void paintCell(int x, int y, Color color) {
 		int posTileX = x / 20;

@@ -65,7 +65,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		JPanel centerPanel = new JPanel();
 		environment = new EnvironmentTest();
 		environment.addMouseListener(environment, GGMouse.lClick
-				| GGMouse.lDrag);
+				| GGMouse.lDrag | GGMouse.lPress | GGMouse.lRelease);
 		centerPanel.add(environment, BorderLayout.CENTER);
 
 		// Se crea el panel izquierdo con las opciones de creación de ambientes
@@ -158,7 +158,6 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		getContentPane().add(leftPanel, BorderLayout.WEST);
 		getContentPane().add(southPanel, BorderLayout.SOUTH);
 		pack();
-
 	}
 
 	@Override
@@ -168,4 +167,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 						.intValue()));
 	}
 
+	public Environment getEnvironment() {
+		return environment;
+	}	
 }

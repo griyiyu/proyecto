@@ -59,6 +59,7 @@ public class MainFrame extends JFrame {
 				EnvironmentUI pep = new EnvironmentUI();
 				desktopPane.add(pep);
 				pep.setVisible(true);
+				pep.getEnvironment().addNXT();
 			}
 		});
 		
