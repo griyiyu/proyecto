@@ -84,6 +84,14 @@ public class MainFrame extends JFrame {
 		
 		JMenuItem mntmIniciarSimulacin = new JMenuItem("Iniciar simulaci\u00F3n");
 		mnSimulacin.add(mntmIniciarSimulacin);
+		mntmIniciarSimulacin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				SimulationUI simulationUI = new SimulationUI();
+				desktopPane.add(simulationUI);
+				simulationUI.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
+				simulationUI.setVisible(true);
+			}
+		});			
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));

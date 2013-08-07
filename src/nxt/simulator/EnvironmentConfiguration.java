@@ -12,6 +12,9 @@ public class EnvironmentConfiguration implements Serializable{
 
 	protected List<String> obstacles;
 	protected HashMap<String, Color> colorsTM;
+	protected int posRobotX;
+	protected int posRobotY;
+	double directionRobot;
 
 	EnvironmentConfiguration() {
 		obstacles = new ArrayList<String>();
@@ -41,4 +44,30 @@ public class EnvironmentConfiguration implements Serializable{
 	public void addColor(String location, Color color) {
 		colorsTM.put(location, color);
 	}
+
+	public int getPosRobotX() {
+		return posRobotX;
+	}
+
+	public void setPosRobotX(int posRobotX) {
+		this.posRobotX = posRobotX;
+	}
+
+	public int getPosRobotY() {
+		return posRobotY;
+	}
+
+	public void setPosRobotY(int posRobotY) {
+		this.posRobotY = posRobotY;
+	}
+
+	public double getDirectionRobot() {
+		return directionRobot;
+	}
+
+	public void setDirectionRobot(double directionRobot) {
+		this.directionRobot = directionRobot;
+	}
+	
+	
 }

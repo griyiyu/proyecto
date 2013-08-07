@@ -1,8 +1,10 @@
 package nxt.simulator;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import lejos.nxt.Motor;
+import lejos.nxt.TouchSensor;
 
 import tools.AdministratorConstants;
 import ch.aplu.jgamegrid.Actor;
@@ -32,6 +34,10 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	protected static final double RADIO_WHEEL = 2 + FACTOR_WHEEL;
 	
 	
+	private Location lastLocation;
+	private boolean isCollide = false;
+	private Location lastTilePosition;
+	
 	/**
 	 * Constructor del robot automovil
 	 * 
@@ -41,7 +47,8 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	public RobotCar(Location startLocation, String imageName) {
 		super(true, AdministratorConstants.IMAGE_PATH + imageName);
 		addActorCollisionListener(this);
-	    setCollisionCircle(collisionCenter, collisionRadius); 
+	    setCollisionCircle(collisionCenter, collisionRadius + 10);
+	    addTileCollisionListener(this);
 	}
 		
 	
@@ -64,7 +71,7 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		// Si los dos motores tienen velocidad cero no se mueve el robot		
 		if (speedA == 0 && speedB == 0) {
 			return;
-		}
+		}		
 		// Si el robot no se va del cuadro, intenta mover el robot
 		if (isMoveValid()) {
 			int speedA2 = getSpeedPxP(modeA, speedA);
@@ -88,6 +95,11 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			y = y + ((speedB2 + speedA2)/2) * Math.sin((float)tita * (Math.PI / (float)180));
 			int xPosition = (int)Math.round(x);
 			int yPosition = (int)Math.round(y);
+			
+			lastLocation = new Location(this.getLocation().getX(), this.getLocation().getY());
+			int posTileX = this.getLocation().getX() / 20;
+			int posTileY = this.getLocation().getY() / 20;
+			lastTilePosition = new Location(posTileX, posTileY);
 			// Verifica que el robot no se choque con nada en la nueva posición
 			boolean possibleMove = canMove(xPosition, yPosition);
 			if (possibleMove) {
@@ -219,13 +231,59 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	 * @return true si está colisionando y false de lo contrario
 	 */
 	public boolean isColliding() {
-		for (Actor a : gameGrid.getActors(Obstacle.class)) {
-			if (gameGrid.isActorColliding(a, this)) {
-				return true;
+		boolean returnedValue = false;
+//		for (Actor a : gameGrid.getActors(Obstacle.class)) {
+//			if (gameGrid.isActorColliding(a, this)) {
+//				return true;
+//			}
+//		}
+//		return false;
+		returnedValue = isCollide;
+		isCollide = false;
+//		setLocation(lastLocation);
+		setLocation(new Location(lastTilePosition.getX() - 1, lastTilePosition.getY() - 1));
+
+//		isCollide = false;
+		return returnedValue;
+	}
+	
+	public boolean isTileColliding(Location posNextMoviment) {		
+		boolean returnedValue = false;
+		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
+		//Center cells
+		occupiedTiles.add(new Location(getLocation().getX()/20, getLocation().getY()/20));
+		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() - 20)/20));
+		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() + 20)/20));
+		//Left cells
+		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, getLocation().getY()/20));
+		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, (getLocation().getY() - 20)/20));
+		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, (getLocation().getY() + 20)/20));
+		//Right cells
+		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, getLocation().getY()/20));
+		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, (getLocation().getY() - 20)/20));
+		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, (getLocation().getY() + 20)/20));		
+		
+		for (Location loc : getCollisionTiles()) {
+			for (Location occLoc : occupiedTiles){
+				if (loc.getX() == occLoc.getX() && loc.getY() == occLoc.getY()) {					
+					returnedValue = true;
+					break;				
+				}
 			}
 		}
-		return false;
+		return returnedValue;
 	}
+	
+	
+	@Override
+	public int collide(Actor actor, Location location) {
+		if (actor instanceof RobotCar) {
+//			setTouchValue(true);
+			isCollide = true;
+			System.out.println("Colisiona el tile map " + getLocation().toString() + " " + location.toString());
+		}
+		return 1;
+	}	
 	
 	/**
 	 * Verifica si en la nueva posición pasada por parámetro el robot puede
@@ -238,9 +296,12 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	 */
 	protected boolean canMove(int x, int y) {
 		Location actualPosition = getLocation();
+		int posTileX = this.getLocation().getX() / 20;
+		int posTileY = this.getLocation().getY() / 20;
+		Location actualTilePosition = new Location(posTileX, posTileY);
 		setLocation(new Location(x,y));
 		boolean result = false;
-		if (isColliding()) {
+		if (isTileColliding(actualTilePosition)) {
 			result = false;
 		}
 		else {

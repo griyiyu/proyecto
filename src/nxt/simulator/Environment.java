@@ -90,6 +90,9 @@ public abstract class Environment extends GameGrid implements
 		addActor(nxt, startLocation, startDirection);
 		addPart(new Motor(MotorPort.A));
 		addPart(new Motor(MotorPort.B));
+		getEnvironmentConfiguration().setPosRobotX(startLocation.getX());
+		getEnvironmentConfiguration().setPosRobotY(startLocation.getY());
+		getEnvironmentConfiguration().setDirectionRobot(startDirection);
 	}
 	
 	public void addPart(Part part) {
@@ -192,9 +195,9 @@ public abstract class Environment extends GameGrid implements
         	int y = new Integer(strs[1]).intValue();
         	paintCell(x, y, entry.getValue());
         }
-		
-
-        
+        getNxt().moveCar(environmentConfiguration.getPosRobotX(), environmentConfiguration.getPosRobotY(), 
+        		environmentConfiguration.getDirectionRobot());
+       
         setTm(tileMap);
         refresh();
 		
@@ -300,14 +303,16 @@ public abstract class Environment extends GameGrid implements
 	}
 	
 	protected void moveNXT(int x, int y) {
-//		getNxt().setLocation(new Location(x,y));
 		getNxt().moveCar(x, y, getNxt().getDirection());
+		getEnvironmentConfiguration().setPosRobotX(x);
+		getEnvironmentConfiguration().setPosRobotY(y);
 		refresh();
 	}
 
 	protected void rotateLeftNXT(double angle) {
 		double newDirection = (getNxt().getDirection() + angle) % 360;
 		getNxt().moveCar(getNxt().getX(), getNxt().getY(), newDirection);
+		getEnvironmentConfiguration().setDirectionRobot(newDirection);		
 		refresh();		
 	}	
 	
@@ -358,6 +363,7 @@ public abstract class Environment extends GameGrid implements
 		Location location = new Location(posTileX, posTileY);
 		getTileMap().setImage("sprites/brick.gif", posTileX, posTileY);
 		getTileMap().setTileCollisionEnabled(location, true);
+		getNxt().addCollisionTile(location);
 		// Se agrega la localizacion a la configuracion
 		getEnvironmentConfiguration().addObstacle(location.toString());
 		refresh();
@@ -381,16 +387,21 @@ public abstract class Environment extends GameGrid implements
 	public void clear() {
 		setTm(createTileMap(50, 30, 20, 20));
 		//Se setea la propiedad isTileCollisionEnabled a false para todas las celdas del tileMap
-		GGTileMap tm = getTileMap();
-		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
-			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
-				Location locAux = new Location(i, j);
-				if (tm.isTileCollisionEnabled(locAux)) {
-					tm.setTileCollisionEnabled(locAux, false);
-				}				
-			}
-		}		
+//		GGTileMap tm = getTileMap();
+//		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
+//			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
+//				Location locAux = new Location(i, j);
+//				if (tm.isTileCollisionEnabled(locAux)) {
+//					tm.setTileCollisionEnabled(locAux, false);
+//				}				
+//			}
+//		}
+		clearTileMap(this.getTm());
 		getBg().clear();
+		//Se limpia la lista de tiles
+		ArrayList<Location> aux = nxt.getCollisionTiles(); 
+		aux.removeAll(nxt.getCollisionTiles());
+		
 		refresh();	
 	}
 

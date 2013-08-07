@@ -4,8 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
@@ -22,11 +25,10 @@ import nxt.simulator.Environment;
 import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentTest;
 import nxt.simulator.persistance.EnvironmentConfigurationDao;
+import programs.Job;
 import tools.EnvironmentActions;
 import tools.EnvironmentColors;
 import ch.aplu.jgamegrid.GGMouse;
-import java.awt.event.ItemListener;
-import java.awt.event.ItemEvent;
 
 public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
@@ -34,6 +36,10 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	protected JButton btnSave;
 	protected JButton btnLoad;
 	protected JButton btnClear;
+	protected JButton btnSimulate;
+	protected JButton btnStop;
+	
+	private Thread job = null;
 
 	/**
 	 * Launch the application.
@@ -107,12 +113,24 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		colorsList.addActionListener(this);
 		leftPanel.add(colorsList);
 		
+		//Puertos 
+//		Label lblP1 = new Label("Puerto1");
+//		Label lblP2 = new Label("Puerto2");
+//		Label lblP3 = new Label("Puerto3");
+//		Label lblP4 = new Label("Puerto4");
+//		leftPanel.add(lblP1);
+//		leftPanel.add(lblP2);
+//		leftPanel.add(lblP3);
+//		leftPanel.add(lblP4);
+		
 		// Se crea el panel inferior con los botones
 		JPanel southPanel = new JPanel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
 		btnSave = new JButton("Guardar");
 		btnLoad = new JButton("Cargar");
 		btnClear = new JButton("Limpiar");
+		btnSimulate = new JButton("Simular");
+		btnStop = new JButton("Stop");
 
 		// Se agregan los listeners para los botones
 		btnSave.addActionListener(new ActionListener() {
@@ -151,9 +169,28 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				environment.clear();
 			}
 		});
+		btnSimulate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (job == null) {
+					job = new Thread(new Job((EnvironmentTest)environment));
+					job.start();
+				}
+				environment.doRun();
+			}
+		});
+		btnStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				environment.doPause();
+//				job.stop();
+//				job = null;
+				
+			}
+		});		
 		southPanel.add(btnSave);
 		southPanel.add(btnLoad);
 		southPanel.add(btnClear);
+		southPanel.add(btnSimulate);
+		southPanel.add(btnStop);
 
 		// Se agregan los paneles a la pantalla principal
 		getContentPane().add(centerPanel, BorderLayout.CENTER);
