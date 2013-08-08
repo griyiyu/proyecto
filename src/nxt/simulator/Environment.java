@@ -83,6 +83,7 @@ public abstract class Environment extends GameGrid implements
 		setNbHorzCells(width); //nbHorzTiles		
 		setBgColor(new Color(56, 114, 114));
 		environmentConfiguration = new EnvironmentConfiguration();
+		Sensor.setEnvironment(this);
 		clearTileMap(getTm());
 	}
 
@@ -363,7 +364,14 @@ public abstract class Environment extends GameGrid implements
 		Location location = new Location(posTileX, posTileY);
 		getTileMap().setImage("sprites/brick.gif", posTileX, posTileY);
 		getTileMap().setTileCollisionEnabled(location, true);
+		// Se agrega el tile a la lista de colision de los distintos sensores y el robot
 		getNxt().addCollisionTile(location);
+		for (Actor sensor : getActors(Sensor.class)) {
+			sensor.addCollisionTile(location);
+		}
+		for (Actor motor : getActors(Motor.class)) {
+			motor.addCollisionTile(location);
+		}		
 		// Se agrega la localizacion a la configuracion
 		getEnvironmentConfiguration().addObstacle(location.toString());
 		refresh();

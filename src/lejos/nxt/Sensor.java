@@ -9,7 +9,6 @@ import ch.aplu.jgamegrid.Location;
 
 public abstract class Sensor extends Part {
 
-	//protected static Environment environment;
 	protected static Environment environment;
 	
 	protected static final Location pos1 = new Location(40, 10);
@@ -27,15 +26,12 @@ public abstract class Sensor extends Part {
 	 * @param imageName - Imagen que representa al sensor
 	 */
 	public Sensor(SensorPort port, String imageName) {
-		super(AdministratorConstants.IMAGE_PATH + imageName,
+		super(AdministratorConstants.IMAGE_PATH + imageName + 
+				new Integer(port.getPortId()).toString() + ".png",
 				port == SensorPort.S1 ? pos1 : (port == SensorPort.S2 ? pos2
 						: (port == SensorPort.S3 ? pos3 : pos4)));
+
 		this.port = port;
-		// Si es el puerto 4 entonces debe voltearse la imagen ya que el sensor es agregado arriba.
-		if (port == SensorPort.S4) {
-			this.setVertMirror(true);
-		}
-		//environment.addPart(this);
 	}
 	
 	/**
@@ -47,9 +43,10 @@ public abstract class Sensor extends Part {
 	 * @param moreCloser - Le resta o suma un valor para que cuando se cree la imagen esté pegada al ladrillo.
 	 */
 	public Sensor(SensorPort port, String imageName, int moreCloser) {
-		super(AdministratorConstants.IMAGE_PATH + imageName,
+		super(AdministratorConstants.IMAGE_PATH + imageName + 
+				new Integer(port.getPortId()).toString() + ".png",
 				port == SensorPort.S1 ? pos1 : (port == SensorPort.S2 ? pos2
-						: (port == SensorPort.S3 ? pos3 : pos4)));
+						: (port == SensorPort.S3 ? pos3 : pos4)));		
 		this.port = port;
 		// Si es el puerto 4 entonces debe voltearse la imagen ya que el sensor es agregado arriba.
 		if (port == SensorPort.S4) {
@@ -67,16 +64,6 @@ public abstract class Sensor extends Part {
 		return port;
 	}
 
-	/*
-	public static Environment getEnvironment() {
-		return environment;
-	}
-
-	public static void setEnvironment(Environment world) {
-		Sensor.environment = world;
-	}
-	*/
-	
 	public static Environment getEnvironment() {
 		return environment;
 	}

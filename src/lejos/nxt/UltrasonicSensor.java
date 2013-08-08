@@ -1,51 +1,86 @@
 package lejos.nxt;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import nxt.simulator.Obstacle;
 import nxt.simulator.Part;
-
-import lejos.nxt.SensorPort;
-
-import tools.AdministratorConstants;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.Location;
 
-
 public class UltrasonicSensor extends Sensor {
 
-	private static Point collisionCenter = new Point(0, 0);
-	private static int collisionRadius = 9;	
+	private static Point collisionCenter = new Point(-6, 0);
+	private static int collisionRadius = 0;
 
 	private Part aux;
 	private int ultrasonicValue = 255;
-
 	
+	private boolean collide = false;
+
 	public UltrasonicSensor(SensorPort port) {
-		super(port, "UltrasonicSensor.png", 1);
+		super(port, "UltrasonicSensor", 1);
 
-		getEnvironment().addPart(this);		
-		addActorCollisionListener(this);
+		getEnvironment().addPart(this);
 		setCollisionCircle(collisionCenter, collisionRadius);
-		
-		//Se instancia un actor del mismo tamaño del sensor para realizar los calculos auxiliares.
-		aux = new Part(AdministratorConstants.IMAGE_PATH + "UltrasonicSensor.png", port == SensorPort.S1 ? pos1 : (port == SensorPort.S2 ? pos2
-				: pos3));
-		addActorCollisionListener(aux);
-		setCollisionCircle(collisionCenter, collisionRadius);
-
-		aux.hide();
-		getEnvironment().addPart(aux);
+		addCollisionActors(environment.getActors(Obstacle.class));
+		addTileCollisionListener(this);
 	}
 
-	public void act() {
-		ultrasonicValue = collideDistance();
-	}	
+	public void act() {		
+		ultrasonicValue = findObstacle();
+	}
+	
+	public int findObstacle(){
+		
+		double tita = getDirection();
+		double xInit = getX();
+		double yInit = getY();
+		double xNew = getX();
+		double yNew = getY();
+		boolean colliding = false;
+		int pixelsAdvanced = 0;
+		int distance = 255;	
+		Location lastLocation = new Location(getX(), getY());
 
+
+		ArrayList<Actor> obstacles = gameGrid.getActors(Obstacle.class);	
+		while (!colliding) {
+			// Revisa si está colisionando y devuelve la distancia en caso de
+			// estar colisionando.			
+			if (gameGrid.isTileColliding((Actor)this, new Location(Math.round(getLocation().getX()/20),Math.round(getLocation().getY()/20))) || !(isMoveValid())) {
+				distance = (int) Math.round((Math.sqrt(Math.pow(
+				(xNew - xInit), 2) + Math.pow((yNew - yInit), 2))));				
+				colliding = true;
+			}			
+			// Calcula la posición x del robot, se incrementa 1 pixel en x en la
+			// direccion del sensor.
+			xNew = xNew + 1 * Math.cos((float) tita * (Math.PI / (float) 180));
+			// Calcula la posición y del robot, se incrementa 1 pixel en y en la
+			// direccion del sensor.
+			yNew = yNew + 1 * Math.sin((float) tita * (Math.PI / (float) 180));
+			int xPosition = (int) Math.round(xNew);
+			int yPosition = (int) Math.round(yNew);
+			// Se asigna la nueva posición a la parte auxiliar para el calculo
+			// de distancia.
+			setLocation(new Location(xPosition, yPosition));				
+			pixelsAdvanced = pixelsAdvanced + 1;
+		}
+		//Si se avanzo solo un px entonces el sensor está chocando
+		if (pixelsAdvanced > 1) {
+			setLocation(lastLocation);				
+		}		
+		// 20 pixels = 1 cm.
+		distance /= 20;
+		System.out.println(distance);
+		return distance >= 170 ? 255 : distance;
+	}
+	
 	/**
 	 * 
-	 * Retorna la distancia en cm desde el ultrasonicSensor hasta un obstaculo o el limite de la grilla, 
-	 * el calculo lo realiza en la dirección que está apuntando. 
+	 * Retorna la distancia en cm desde el ultrasonicSensor hasta un obstaculo o
+	 * el limite de la grilla, el calculo lo realiza en la dirección que está
+	 * apuntando.
 	 */
 	public int collideDistance() {
 
@@ -55,44 +90,59 @@ public class UltrasonicSensor extends Sensor {
 		double xNew = getX();
 		double yNew = getY();
 		boolean colliding = false;
-		int distance = 255;  
+		int distance = 255;
+
+		ArrayList<Actor> obstacles = gameGrid.getActors(Obstacle.class);
 		
 		aux.setDirection(this.getDirection());
 		aux.setLocation(this.getLocation());
-		
-		aux.show();
-		while (!colliding){
 
-			//Revisa si está colisionando y devuelve la distancia en caso de estar colisionando.
-			for (Actor a : gameGrid.getActors(Obstacle.class)) {
+		aux.show();
+		while (!colliding) {
+			// Revisa si está colisionando y devuelve la distancia en caso de
+			// estar colisionando.
+			for (Actor a : obstacles) {
 				if (gameGrid.isActorColliding(a, aux) || !(aux.isMoveValid())) {
-					distance = (int)Math.round((Math.sqrt(Math.pow((xNew-xInit), 2)+ Math.pow((yNew-yInit), 2))));
+					distance = (int) Math.round((Math.sqrt(Math.pow(
+							(xNew - xInit), 2) + Math.pow((yNew - yInit), 2))));
 					colliding = true;
-					//return (int)Math.round((Math.sqrt(Math.pow((xNew-xInit), 2)+ Math.pow((yNew-yInit), 2))));
+					break;
 				}
 			}
-			
-			// Calcula la posición x del robot, se incrementa 5 pixel en x en la direccion del sensor.
-			xNew = xNew + 5 * Math.cos((float)tita * (Math.PI / (float)180));
-			// Calcula la posición y del robot, se incrementa 5 pixel en y en la direccion del sensor.
-			yNew = yNew + 5 * Math.sin((float)tita * (Math.PI / (float)180));
-			int xPosition = (int)Math.round(xNew);
-			int yPosition = (int)Math.round(yNew);
-			// Se asigna la nueva posición a la parte auxiliar para el calculo de distancia.
-			aux.setLocation(new Location(xPosition,yPosition));
-		}	
+			// Calcula la posición x del robot, se incrementa 1 pixel en x en la
+			// direccion del sensor.
+			xNew = xNew + 1 * Math.cos((float) tita * (Math.PI / (float) 180));
+			// Calcula la posición y del robot, se incrementa 1 pixel en y en la
+			// direccion del sensor.
+			yNew = yNew + 1 * Math.sin((float) tita * (Math.PI / (float) 180));
+			int xPosition = (int) Math.round(xNew);
+			int yPosition = (int) Math.round(yNew);
+			// Se asigna la nueva posición a la parte auxiliar para el calculo
+			// de distancia.
+			aux.setLocation(new Location(xPosition, yPosition));
+		}
 		aux.hide();
-		//5 pixels = 1 cm.
-		distance /= 5;
+		// 20 pixels = 1 cm.
+		distance /= 20;
 		return distance >= 170 ? 255 : distance;
 	}
-	
+
 	/**
-	 * Retorna la distancia en cm desde el ultrasonicSensor hasta un obstaculo o el limite de la grilla.
+	 * Retorna la distancia en cm desde el ultrasonicSensor hasta un obstaculo o
+	 * el limite de la grilla.
+	 * 
 	 * @return
 	 */
-	public int getDistance(){
+	public int getDistance() {
 		return ultrasonicValue;
 	}
 	
+	@Override
+	public int collide(Actor a1, Actor a2)
+	{
+	  if (a1 instanceof UltrasonicSensor){
+		  collide = true;
+	  }
+	  return 0;
+	}
 }

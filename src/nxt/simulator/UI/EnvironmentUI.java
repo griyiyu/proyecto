@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,6 +23,8 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import lejos.nxt.Sensor;
+
 import nxt.simulator.Environment;
 import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentTest;
@@ -28,6 +32,7 @@ import nxt.simulator.persistance.EnvironmentConfigurationDao;
 import programs.Job;
 import tools.EnvironmentActions;
 import tools.EnvironmentColors;
+import tools.SensorEnum;
 import ch.aplu.jgamegrid.GGMouse;
 
 public class EnvironmentUI extends JInternalFrame implements ActionListener {
@@ -61,6 +66,12 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	 * Create the frame.
 	 */
 	public EnvironmentUI() {
+		JPanel leftPanel;
+		JRadioButton addButton;
+		JRadioButton paintButton;
+		ButtonGroup group;		
+		JPanel southPanel;
+		
 		setMinimumSize(new Dimension(400, 600));
 		setClosable(true);
 		setMaximizable(true);
@@ -76,28 +87,38 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		centerPanel.add(environment, BorderLayout.CENTER);
 
 		// Se crea el panel izquierdo con las opciones de creación de ambientes
-		JPanel leftPanel = new JPanel();
-		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS));
+		leftPanel = new JPanel();
+//		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS));
+		leftPanel.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		
 		// Opción de agregar
-		JRadioButton addButton = new JRadioButton("Agregar");
+		addButton = new JRadioButton("Agregar");
 		addButton.setMnemonic(KeyEvent.VK_A);
 		addButton.setActionCommand(EnvironmentActions.ADD.getCode().toString());
 		addButton.setSelected(true);
 		// Opción de pintar
-		JRadioButton paintButton = new JRadioButton("Pintar");
+		paintButton = new JRadioButton("Pintar");
 		paintButton.setMnemonic(KeyEvent.VK_P);
 		paintButton.setActionCommand(EnvironmentActions.PAINT.getCode()
 				.toString());
 		// Se agrupan las opciones
-		ButtonGroup group = new ButtonGroup();
+		group = new ButtonGroup();
 		group.add(addButton);
 		group.add(paintButton);
 		// Se agregan los listeners para las opciones
 		addButton.addActionListener(this);
 		paintButton.addActionListener(this);
 		// Se agregan las opciones al panel izquierdo
-		leftPanel.add(addButton);
-		leftPanel.add(paintButton);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 0;
+		leftPanel.add(addButton, c);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 0;		
+		leftPanel.add(paintButton, c);
 		
 		//Combobox de colores
 		final JComboBox colorsList = new JComboBox(EnvironmentColors.values());
@@ -111,20 +132,62 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		colorsList.setPreferredSize(new Dimension(90,20));
 		colorsList.setMaximumSize(new Dimension(90,20));
 		colorsList.addActionListener(this);
-		leftPanel.add(colorsList);
+//		leftPanel.add(colorsList);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 1;			
+		leftPanel.add(colorsList, c);
 		
 		//Puertos 
-//		Label lblP1 = new Label("Puerto1");
-//		Label lblP2 = new Label("Puerto2");
-//		Label lblP3 = new Label("Puerto3");
-//		Label lblP4 = new Label("Puerto4");
-//		leftPanel.add(lblP1);
-//		leftPanel.add(lblP2);
-//		leftPanel.add(lblP3);
-//		leftPanel.add(lblP4);
+		Label lblP1 = new Label("Puerto1");
+		Label lblP2 = new Label("Puerto2");
+		Label lblP3 = new Label("Puerto3");
+		Label lblP4 = new Label("Puerto4");
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 3;
+		leftPanel.add(lblP1, c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 4;
+		leftPanel.add(lblP2, c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 5;
+		leftPanel.add(lblP3, c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 6;
+		leftPanel.add(lblP4, c);
+		final JComboBox comboPort1 = new JComboBox(SensorEnum.values());
+//		comboPort1.addItemListener(new ItemListener() {
+//			public void itemStateChanged(ItemEvent arg0) {
+//				Sensor sensor = ((SensorEnum)comboPort1.getSelectedItem()).getSensor();
+//				environment.getNxt();
+//			}
+//		});		
+		final JComboBox comboPort2 = new JComboBox(SensorEnum.values());
+		final JComboBox comboPort3 = new JComboBox(SensorEnum.values());
+		final JComboBox comboPort4 = new JComboBox(SensorEnum.values());
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 3;			
+		leftPanel.add(comboPort1, c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 4;			
+		leftPanel.add(comboPort2, c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 5;			
+		leftPanel.add(comboPort3, c);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 1;
+		c.gridy = 6;			
+		leftPanel.add(comboPort4, c);
 		
 		// Se crea el panel inferior con los botones
-		JPanel southPanel = new JPanel();
+		southPanel = new JPanel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
 		btnSave = new JButton("Guardar");
 		btnLoad = new JButton("Cargar");

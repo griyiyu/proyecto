@@ -4,7 +4,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import lejos.nxt.Motor;
+import lejos.nxt.Sensor;
 import lejos.nxt.TouchSensor;
+import lejos.nxt.UltrasonicSensor;
 
 import tools.AdministratorConstants;
 import ch.aplu.jgamegrid.Actor;
@@ -15,17 +17,17 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	/**
 	 * Centro de colisión del robot.
 	 */
-	protected static Point collisionCenter = new Point(0,0);//(-13, 0);
+	protected static Point collisionCenter = new Point(0,0);
 	
 	/**
 	 * Radio de colisión del robot.
 	 */
-	protected static int collisionRadius = 30;//18;
+	protected static int collisionRadius = 30;
 
 	/**
 	 * Factor de corrección por el rosamiento en el suelo etc.
 	 */
-	protected static final double FACTOR_WHEEL = -0.3;//-0.3;
+	protected static final double FACTOR_WHEEL = -0.3;
 	
 	
 	/**
@@ -34,7 +36,6 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	protected static final double RADIO_WHEEL = 2 + FACTOR_WHEEL;
 	
 	
-	private Location lastLocation;
 	private boolean isCollide = false;
 	private Location lastTilePosition;
 	
@@ -53,13 +54,8 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		
 	
 	@Override
-	public synchronized void act() {//move() {
-		
-		// Se actualizan los valores de los sensores. 
-//		for (Actor a : gameGrid.getActors(Sensor.class)) {
-//			((Sensor) a).detect();
-//		}		
-		
+	public synchronized void act() {
+		Location lastLocation;
 		int modeA = Motor.A.getMode();
 		int modeB = Motor.B.getMode();
 		// Si los dos motores estan detenidos no se mueve el robot
@@ -73,7 +69,7 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			return;
 		}		
 		// Si el robot no se va del cuadro, intenta mover el robot
-		if (isMoveValid()) {
+		if (isMoveValid() && !isSensorCollide()) {
 			int speedA2 = getSpeedPxP(modeA, speedA);
 			int speedB2 = getSpeedPxP(modeB, speedB);
 			speedA = getSpeed(modeA, speedA);
@@ -106,8 +102,34 @@ public class RobotCar extends Actor implements AdministratorConstants {
 				// Mueve el robot en la dirección y posición calculada
 				moveCar(xPosition, yPosition, tita);
 			}
-			//System.out.println(this.getY());
 		}
+	}
+	/**
+	 * Retorna true si alguno de los sensores o las ruedas toca un obstaculo
+	 * @return boolean
+	 */
+	private boolean isSensorCollide() {
+		boolean returnedValue = false;
+		for (Actor sensor : gameGrid.getActors(Sensor.class)) {
+			if (sensor.getClass() == UltrasonicSensor.class) {
+				if (((UltrasonicSensor)sensor).getDistance() < 1) {
+					returnedValue = true;
+					break;
+				}
+			} else if (((TouchSensor)sensor).isTouchValue()) {
+				returnedValue = true;
+				break;
+			};
+		}
+		for (Actor wheel : gameGrid.getActors(Motor.class)) {
+			if (wheel.getClass() == Motor.class) {
+				if (((Motor)wheel).isCollide()) {
+					returnedValue = true;
+					break;
+				}
+			};
+		}		
+		return returnedValue;
 	}
 
 	/**
@@ -174,16 +196,6 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			Part p = (Part) actor; 
 			p.setDirection(tita);
 			p.setLocation(getPartLocation(p));
-			/*
-			try {
-				Sensor sensor = (Sensor) p;
-				if (sensor.getSensorPor() == SensorPort.S4) {
-					p.setVertMirror(true);
-				}
-			} catch (ClassCastException cce) {
-				continue;
-			}
-			*/
 		}
 	}
 	
@@ -232,18 +244,10 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	 */
 	public boolean isColliding() {
 		boolean returnedValue = false;
-//		for (Actor a : gameGrid.getActors(Obstacle.class)) {
-//			if (gameGrid.isActorColliding(a, this)) {
-//				return true;
-//			}
-//		}
-//		return false;
 		returnedValue = isCollide;
 		isCollide = false;
-//		setLocation(lastLocation);
 		setLocation(new Location(lastTilePosition.getX() - 1, lastTilePosition.getY() - 1));
 
-//		isCollide = false;
 		return returnedValue;
 	}
 	
@@ -251,17 +255,14 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		boolean returnedValue = false;
 		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
 		//Center cells
-		occupiedTiles.add(new Location(getLocation().getX()/20, getLocation().getY()/20));
-		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() - 20)/20));
-		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() + 20)/20));
+		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() - 27)/20));
+		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() + 27)/20));
 		//Left cells
-		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, getLocation().getY()/20));
-		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, (getLocation().getY() - 20)/20));
-		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, (getLocation().getY() + 20)/20));
+		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, (getLocation().getY() - 27)/20));
+		occupiedTiles.add(new Location((getLocation().getX() - 20)/20, (getLocation().getY() + 27)/20));
 		//Right cells
-		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, getLocation().getY()/20));
-		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, (getLocation().getY() - 20)/20));
-		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, (getLocation().getY() + 20)/20));		
+		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, (getLocation().getY() - 27)/20));
+		occupiedTiles.add(new Location((getLocation().getX() + 20)/20, (getLocation().getY() + 27)/20));		
 		
 		for (Location loc : getCollisionTiles()) {
 			for (Location occLoc : occupiedTiles){
@@ -278,9 +279,7 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	@Override
 	public int collide(Actor actor, Location location) {
 		if (actor instanceof RobotCar) {
-//			setTouchValue(true);
 			isCollide = true;
-			System.out.println("Colisiona el tile map " + getLocation().toString() + " " + location.toString());
 		}
 		return 1;
 	}	
