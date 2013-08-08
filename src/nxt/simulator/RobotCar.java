@@ -272,6 +272,7 @@ public class RobotCar extends Actor implements AdministratorConstants {
 				}
 			}
 		}
+		System.out.println("Colision nxt");
 		return returnedValue;
 	}
 	

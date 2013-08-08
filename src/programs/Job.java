@@ -27,9 +27,9 @@ public class Job implements Runnable {
     public void run() {
 		try {
 			
-			
+/*			
 //			TouchSensor us = new TouchSensor(SensorPort.S2);
-//			TouchSensor ts = new TouchSensor(SensorPort.S2);
+//			UltrasonicSensor ts = new UltrasonicSensor(SensorPort.S2);
 			while (true) {
 				Motor.A.forward();
 				Motor.B.forward();
@@ -40,22 +40,24 @@ public class Job implements Runnable {
 //						Thread.sleep(1500);
 //				}
 			}
+*/
 
-
-/*			
+			
 			//Test for ultrasonic Sensor	
 			UltrasonicSensor us = new UltrasonicSensor(SensorPort.S2);
 			while (true) {
 				Motor.A.forward();
 				Motor.B.forward();
 //				Thread.sleep(3500);
-				if (us.getDistance() < 20) {
-						Motor.A.backward();
-						Thread.sleep(1500);
-						Motor.A.forward();
+				if (us.getDistance() < 15) {
+					Motor.A.backward();
+					Thread.sleep(1000);
+				} else {
+					Motor.A.forward();
+
 				}
 			}
-*/			
+			
 		//Test for touch Sensor	
 /*
 		TouchSensor ts2 = new TouchSensor(SensorPort.S1);

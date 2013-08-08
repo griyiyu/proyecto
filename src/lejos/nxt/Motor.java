@@ -103,9 +103,18 @@ public class Motor extends Part implements AdministratorConstants {
 	
 	public boolean isCollide() {
 		boolean returnedValue = false;
-		ArrayList<Location> occupiedTiles = new ArrayList<Location>();		
-		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() - 32)/20));
-		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() + 34)/20));
+		double tita = getDirection();
+		double xNew = getX();
+		double yNew = getY();	
+		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
+		xNew = xNew + 34 * Math.cos((float) tita * (Math.PI / (float) 180));
+		yNew = yNew + 34 * Math.sin((float) tita * (Math.PI / (float) 180));
+		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
+		xNew = xNew - 32 * Math.cos((float) tita * (Math.PI / (float) 180));
+		yNew = yNew - 32 * Math.sin((float) tita * (Math.PI / (float) 180));
+		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
+//		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() - 32)/20));
+//		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() + 34)/20));
 
 		for (Location loc : getCollisionTiles()) {
 			for (Location occLoc : occupiedTiles){
@@ -115,6 +124,7 @@ public class Motor extends Part implements AdministratorConstants {
 				}
 			}
 		}
+		System.out.println("Colision rueda");
 		return returnedValue;		
 	}	
 }
