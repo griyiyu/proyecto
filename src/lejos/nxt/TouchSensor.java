@@ -1,6 +1,7 @@
 package lejos.nxt;
 
 import java.awt.Point;
+import java.util.ArrayList;
 
 import nxt.simulator.Obstacle;
 import ch.aplu.jgamegrid.Actor;
@@ -50,24 +51,72 @@ public class TouchSensor extends Sensor {
 				returnedValue =  true;
 			}
 		}
-		//TODO: Quitar esto una vez que se unan las clases Obstacle y ObstacleClick
-		/*
-		for (Actor a : gameGrid.getActors(ObstacleClick.class)) {
-			if (gameGrid.isActorColliding(a, this)) {
-				return true;
-			}
-		}
-		*/
 		return returnedValue;
 	}
 	
-	public boolean isPressed(){
+	public boolean isPressed(){		
 		return isTouchValue();
 	}
+	
+	public boolean isCollide(int x, int y, double direction) {
+		boolean returnedValue = false;
+		double tita = direction;
+		double xNew = getX();
+		double yNew = getY();	
+		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
+		xNew = xNew + sumXOffset(x) * Math.cos((float) tita * (Math.PI / (float) 180));
+		yNew = yNew + sumYOffset(y) * Math.sin((float) tita * (Math.PI / (float) 180));
+		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
+
+		for (Location loc : getCollisionTiles()) {
+			for (Location occLoc : occupiedTiles){
+				if (loc.getX() == occLoc.getX() && loc.getY() == occLoc.getY()) {					
+					returnedValue = true;
+					break;				
+				}
+			}
+		}
+		return returnedValue;		
+	}
+	
+	private int sumXOffset(int nextCoordinate) {
+		int offset = 14;
+		int returnedValue = offset;
+		if ((getDirection() >= 0 && getDirection() < 90) || (getDirection() > 270 && getDirection() <= 360)) {
+			if (getEnvironment().getNxt().getX() - nextCoordinate < 0) {
+				returnedValue = offset;
+			} else {
+				returnedValue = -offset;
+			}
+		} else if (getEnvironment().getNxt().getX() - nextCoordinate < 0) {
+				returnedValue = -offset;
+			} else {
+				returnedValue = offset;
+			}
+		return returnedValue;
+	}
+	
+	private int sumYOffset(int nextCoordinate) {
+		int offset = 14;
+		int returnedValue = offset;
+		if (getDirection() >= 0 && getDirection() <180) {
+			if (getEnvironment().getNxt().getY() - nextCoordinate < 0) {
+				returnedValue = offset;
+			} else {
+				returnedValue = -offset;
+			}
+		} else if (getEnvironment().getNxt().getY() - nextCoordinate < 0) {
+				returnedValue = -offset;
+			} else {
+				returnedValue = offset;
+			}
+		return returnedValue;
+	}	
 	
 	@Override
 	public int collide(Actor actor, Location location) {
 		if (actor instanceof TouchSensor) {
+			System.out.println("se activa el sensor");
 			setTouchValue(true);
 		}
 		return 1;

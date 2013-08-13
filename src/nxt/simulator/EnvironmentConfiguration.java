@@ -69,5 +69,9 @@ public class EnvironmentConfiguration implements Serializable{
 		this.directionRobot = directionRobot;
 	}
 	
+	public void removeObstacle(String value) {
+		obstacles.remove(value);
+	}
+	
 	
 }

@@ -31,7 +31,15 @@ public class Motor extends Part implements AdministratorConstants {
      */
     public static final Motor C = new Motor(MotorPort.C);		
 
-	protected MotorPort port;
+	public static Motor getInstance(MotorPort port) {
+		switch (port.getPortId()) {
+		case 0: return Motor.A;
+		case 1: return Motor.B;
+		default:return Motor.C;
+		}
+	}
+    
+    protected MotorPort port;
 	protected int speed = START_SPEED;
 	protected int mode = STOP;
 	
@@ -48,6 +56,7 @@ public class Motor extends Part implements AdministratorConstants {
 				: (port == MotorPort.B ? AdministratorConstants.IMAGE_PATH + "RuedaB.png" : AdministratorConstants.IMAGE_PATH + "RuedaA.png"),
 				port == MotorPort.A ? pos1
 				: (port == MotorPort.B ? pos2 : pos1));
+		this.port = port;
 		setCollisionCircle(collisionCenter, collisionRadius);
 		addTileCollisionListener(this);
 	}
@@ -101,20 +110,25 @@ public class Motor extends Part implements AdministratorConstants {
 		this.mode = mode;
 	}	
 	
-	public boolean isCollide() {
+	
+	/**
+	 * Este metodo verifica si en la posición pasada por parametro existe un tile.
+	 * @param x
+	 * @param y
+	 * @param direction
+	 * @param movimentSignX
+	 * @param movimentSignY
+	 * @return
+	 */
+	public boolean isCollide(int x, int y, double direction) {
 		boolean returnedValue = false;
-		double tita = getDirection();
+		double tita = direction;
 		double xNew = getX();
 		double yNew = getY();	
 		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
-		xNew = xNew + 34 * Math.cos((float) tita * (Math.PI / (float) 180));
-		yNew = yNew + 34 * Math.sin((float) tita * (Math.PI / (float) 180));
+		xNew = xNew + (getInstance(port).getMode() == BACKWARD? -34 : 34) * Math.cos((float) tita * (Math.PI / (float) 180));
+		yNew = yNew + (getInstance(port).getMode() == BACKWARD? -34 : 34) * Math.sin((float) tita * (Math.PI / (float) 180));
 		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
-		xNew = xNew - 32 * Math.cos((float) tita * (Math.PI / (float) 180));
-		yNew = yNew - 32 * Math.sin((float) tita * (Math.PI / (float) 180));
-		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
-//		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() - 32)/20));
-//		occupiedTiles.add(new Location(getLocation().getX()/20, (getLocation().getY() + 34)/20));
 
 		for (Location loc : getCollisionTiles()) {
 			for (Location occLoc : occupiedTiles){
@@ -124,7 +138,6 @@ public class Motor extends Part implements AdministratorConstants {
 				}
 			}
 		}
-		System.out.println("Colision rueda");
 		return returnedValue;		
 	}	
 }

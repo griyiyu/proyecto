@@ -23,8 +23,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import lejos.nxt.Sensor;
-
 import nxt.simulator.Environment;
 import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentTest;
@@ -43,6 +41,8 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	protected JButton btnClear;
 	protected JButton btnSimulate;
 	protected JButton btnStop;
+	
+	protected Label lblValueP2;
 	
 	private Thread job = null;
 
@@ -69,7 +69,8 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		JPanel leftPanel;
 		JRadioButton addButton;
 		JRadioButton paintButton;
-		ButtonGroup group;		
+		JRadioButton cleanButton;
+		final ButtonGroup group;		
 		JPanel southPanel;
 		
 		setMinimumSize(new Dimension(400, 600));
@@ -80,7 +81,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
 		// Se crea el panel central y el environment
 		JPanel centerPanel = new JPanel();
-		environment = new EnvironmentTest();
+		environment = new EnvironmentTest(this);
 		environment.addMouseListener(environment, GGMouse.lClick
 				| GGMouse.lDrag | GGMouse.lPress | GGMouse.lRelease 
 				| GGMouse.rPress);
@@ -102,13 +103,20 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		paintButton.setMnemonic(KeyEvent.VK_P);
 		paintButton.setActionCommand(EnvironmentActions.PAINT.getCode()
 				.toString());
+		// Opción de limpiar
+		cleanButton = new JRadioButton("Limpiar");
+		cleanButton.setMnemonic(KeyEvent.VK_L);
+		cleanButton.setActionCommand(EnvironmentActions.CLEAN.getCode()
+				.toString());				
 		// Se agrupan las opciones
 		group = new ButtonGroup();
 		group.add(addButton);
 		group.add(paintButton);
+		group.add(cleanButton);
 		// Se agregan los listeners para las opciones
 		addButton.addActionListener(this);
 		paintButton.addActionListener(this);
+		cleanButton.addActionListener(this);
 		// Se agregan las opciones al panel izquierdo
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
@@ -116,9 +124,14 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		leftPanel.add(addButton, c);
 		
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 0;		
+		c.gridx = 0;
+		c.gridy = 1;		
 		leftPanel.add(paintButton, c);
+		
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.gridx = 0;
+		c.gridy = 2;		
+		leftPanel.add(cleanButton, c);		
 		
 		//Combobox de colores
 		final JComboBox colorsList = new JComboBox(EnvironmentColors.values());
@@ -166,7 +179,8 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 //				environment.getNxt();
 //			}
 //		});		
-		final JComboBox comboPort2 = new JComboBox(SensorEnum.values());
+//		final JComboBox comboPort2 = new JComboBox(SensorEnum.values());
+		lblValueP2 = new Label("value");
 		final JComboBox comboPort3 = new JComboBox(SensorEnum.values());
 		final JComboBox comboPort4 = new JComboBox(SensorEnum.values());
 		c.fill = GridBagConstraints.HORIZONTAL;
@@ -176,7 +190,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 4;			
-		leftPanel.add(comboPort2, c);
+		leftPanel.add(lblValueP2, c);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 5;			
@@ -238,14 +252,19 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 					job = new Thread(new Job((EnvironmentTest)environment));
 					job.start();
 				}
+				environment.setEnvironmentAction(EnvironmentActions.RUN);				
 				environment.doRun();
 			}
 		});
 		btnStop.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent arg0) {				
 				environment.doPause();
-//				job.stop();
-//				job = null;
+				environment.setEnvironmentAction(EnvironmentActions
+						.getState((new Integer((String) group.getSelection().getActionCommand()))
+								.intValue()));
+				
+				job.stop();
+				job = null;
 				
 			}
 		});		
@@ -271,5 +290,9 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
 	public Environment getEnvironment() {
 		return environment;
-	}	
+	}
+	
+	public void setLblValueP2(String value) {
+		lblValueP2.setText(value);
+	}
 }

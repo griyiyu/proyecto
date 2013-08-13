@@ -1,5 +1,9 @@
 package nxt.simulator;
 
+import java.awt.Color;
+
+import lejos.nxt.Sensor;
+import nxt.simulator.UI.EnvironmentUI;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GGTileMap;
 import ch.aplu.jgamegrid.Location;
@@ -10,6 +14,11 @@ public class EnvironmentTest extends Environment {
 	{
 		super();		
 	}
+	
+	public EnvironmentTest(EnvironmentUI ui) {
+		super();
+		environmentUI = ui;
+	}		
 	
 	public EnvironmentTest(Location startLocation, double startDirection)
 	{

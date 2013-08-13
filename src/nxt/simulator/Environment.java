@@ -8,9 +8,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import nxt.simulator.UI.EnvironmentUI;
+
 import lejos.nxt.Motor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.Sensor;
+import lejos.nxt.SensorPort;
+import lejos.nxt.UltrasonicSensor;
 import tools.AdministratorConstants;
 import tools.EnvironmentActions;
 import ch.aplu.jgamegrid.Actor;
@@ -56,6 +60,11 @@ public abstract class Environment extends GameGrid implements
 	private boolean addingOrPainting = false;
 	
 	protected Color color = new Color(YELLOW);
+	
+	private long cicleTotalTime = System.currentTimeMillis();
+	private long cicleStartTime = System.currentTimeMillis();
+	
+	protected EnvironmentUI environmentUI;		
 
 	public Environment(Location startLocation, double startDirection) {
 		super(width, high, 1, null, null, isNavigationBar, 60);
@@ -187,7 +196,16 @@ public abstract class Environment extends GameGrid implements
         	int x = new Integer(strs[0]).intValue();
         	int y = new Integer(strs[1]).intValue();
     		tileMap.setImage("sprites/brick.gif", x, y);
-    		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
+    		tileMap.setTileCollisionEnabled(new Location(x, y), true);
+    		// Se agrega el tile a la lista de colision de los distintos sensores y el robot
+    		Location location = new Location(x, y);
+    		getNxt().addCollisionTile(location);
+    		for (Actor sensor : getActors(Sensor.class)) {
+    			sensor.addCollisionTile(location);
+    		}
+    		for (Actor motor : getActors(Motor.class)) {
+    			motor.addCollisionTile(location);
+    		}		
         }
 		Map<String, Color> colorsPositions = environmentConfiguration.getColorsTM();
         for (Map.Entry<String, Color> entry : colorsPositions.entrySet()) {
@@ -228,45 +246,49 @@ public abstract class Environment extends GameGrid implements
 			if (mouse.getX() >= robot.getX() - robot.getHeight(0)  &&  mouse.getX() <= robot.getX() + robot.getHeight(0) && 
 					mouse.getY() >= robot.getY() - robot.getHeight(0) && mouse.getY() <= robot.getY() + robot.getHeight(0))
 			clickOnRobot = true;						
-		}			
-		switch (mouse.getEvent()) {
-		case GGMouse.lPress:
-			if (clickOnRobot) {
-				dragging = true;
-				moveNXT(mouse.getX(), mouse.getY());									
-			} else {
-				addingOrPainting = true;
-			}
-			break;
-		case GGMouse.lClick:
-			if (!clickOnRobot) {
-				if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
-					setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
-				} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
-					paintCell(mouse.getX(), mouse.getY());
+		}
+		if (!EnvironmentActions.RUN.equals(getEnvironmentAction())) {
+			switch (mouse.getEvent()) {
+			case GGMouse.lPress:
+				if (clickOnRobot) {
+					dragging = true;
+					moveNXT(mouse.getX(), mouse.getY());									
+				} else {
+					addingOrPainting = true;
 				}
-			}
-			break;
-		case GGMouse.lDrag:
-			if ((clickOnRobot && !addingOrPainting)|| dragging) {
-				moveNXT(mouse.getX(), mouse.getY());
-			} else if (!clickOnRobot){
-				if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
-					setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
-				} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
-					paintCell(mouse.getX(), mouse.getY());
+				break;
+			case GGMouse.lClick:
+				if (!clickOnRobot) {
+					if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
+						setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+					} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
+						paintCell(mouse.getX(), mouse.getY());
+					} else if (EnvironmentActions.CLEAN.equals(getEnvironmentAction())) {
+						cleanCell(mouse.getX(), mouse.getY());
+					}
 				}
-			}			
-			break;
-		case GGMouse.lRelease:
-			dragging = false;
-			addingOrPainting = false;
-			break;
-		case GGMouse.rPress:
-			if (clickOnRobot) {
-				rotateLeftNXT(15);
+				break;
+			case GGMouse.lDrag:
+				if ((clickOnRobot && !addingOrPainting)|| dragging) {
+					moveNXT(mouse.getX(), mouse.getY());
+				} else if (!clickOnRobot){
+					if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
+						setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+					} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
+						paintCell(mouse.getX(), mouse.getY());
+					}
+				}			
+				break;
+			case GGMouse.lRelease:
+				dragging = false;
+				addingOrPainting = false;
+				break;
+			case GGMouse.rPress:
+				if (clickOnRobot) {
+					rotateLeftNXT(15);
+				}
+				break;
 			}
-			break;
 		}
 		return true;
 	}
@@ -353,29 +375,61 @@ public abstract class Environment extends GameGrid implements
 		this.environmentConfiguration = environmentConfiguration;
 	}
 
+	/**
+	 * @param x Cordenada del eje x
+	 * @param y Cordenada del eje y
+	 **/
 	public void setToTrueTileCollisionEnabledCel(int x, int y) {
 		// Obtengo la esquina superior del tile para luego setear la propiedad
 		// de colision a true
-		// int offsetX = x % 20;
-		// int offsetY = y % 20;
 
 		int posTileX = x / 20;
 		int posTileY = y / 20;
 		Location location = new Location(posTileX, posTileY);
-		getTileMap().setImage("sprites/brick.gif", posTileX, posTileY);
-		getTileMap().setTileCollisionEnabled(location, true);
-		// Se agrega el tile a la lista de colision de los distintos sensores y el robot
-		getNxt().addCollisionTile(location);
-		for (Actor sensor : getActors(Sensor.class)) {
-			sensor.addCollisionTile(location);
+		if (!getTileMap().isTileCollisionEnabled(location)) {
+			getTileMap().setImage("sprites/brick.gif", posTileX, posTileY);
+			getTileMap().setTileCollisionEnabled(location, true);
+			// Se agrega el tile a la lista de colision de los distintos sensores y el robot
+			getNxt().addCollisionTile(location);
+			for (Actor sensor : getActors(Sensor.class)) {
+				sensor.addCollisionTile(location);
+			}
+			for (Actor motor : getActors(Motor.class)) {
+				motor.addCollisionTile(location);
+			}		
+			// Se agrega la localizacion a la configuracion
+			getEnvironmentConfiguration().addObstacle(location.toString());
+			refresh();
 		}
-		for (Actor motor : getActors(Motor.class)) {
-			motor.addCollisionTile(location);
-		}		
-		// Se agrega la localizacion a la configuracion
-		getEnvironmentConfiguration().addObstacle(location.toString());
-		refresh();
 	}
+	
+	public void cleanCell(int x, int y) {
+		// Obtengo la esquina superior del tile para luego setear la propiedad
+		// de colision a true
+
+		int posTileX = x / 20;
+		int posTileY = y / 20;
+		Location location = new Location(posTileX, posTileY);
+		if (getTileMap().isTileCollisionEnabled(location)) {
+			getTileMap().setImage("", posTileX, posTileY);
+			getTileMap().setTileCollisionEnabled(location, false);
+			// Se quita el tile a la lista de colision de los distintos sensores y el robot
+			ArrayList<Location> aux = getNxt().getCollisionTiles(); 
+			aux.remove(location);			
+			for (Actor sensor : getActors(UltrasonicSensor.class)) {
+				aux = sensor.getCollisionTiles(); 
+				aux.remove(location);			
+			}
+			for (Actor motor : getActors(Motor.class)) {
+				aux = motor.getCollisionTiles(); 
+				aux.remove(location);			
+			}		
+			// Se quita la localizacion a la configuracion
+			getEnvironmentConfiguration().removeObstacle(location.toString());
+			refresh();
+		}
+	}	
+	
 	
 	public void clearTileMap(GGTileMap tileMap) {
 //		setTm(createTileMap(50, 30, 20, 20));
@@ -420,8 +474,31 @@ public abstract class Environment extends GameGrid implements
 	public void setColor(Color color) {
 		this.color = color;
 	}
+
+	public long getCicleTotalTime() {
+		return cicleTotalTime;
+	}
+
+	public void setCicleTotalTime(long cicleTotalTime) {
+		this.cicleTotalTime = cicleTotalTime;
+	}
 	
 	
+	public long getCicleStartTime() {
+		return cicleStartTime;
+	}
+
+	public void setCicleStartTime(long cicleStartTime) {
+		this.cicleStartTime = cicleStartTime;
+	}
+
+	public void act() {
+		setCicleTotalTime(System.currentTimeMillis() - getCicleStartTime());
+	}
+	
+	public EnvironmentUI getEnvironmentUI() {
+		return environmentUI;
+	}
 	
 
 }
