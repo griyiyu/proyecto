@@ -71,7 +71,7 @@ public abstract class Environment extends GameGrid implements
 		super(width, high, 1, null, null, isNavigationBar, 60);
 		setTitle("NXT Robot Simulation Environment");
 		setSimulationPeriod(SIMULATION_PERIOD);
-		setBgColor(new Color(56, 114, 114)); // (50, 100, 100) //(42, 85, 32));
+		setBgColor(AdministratorConstants.backgroundColor); // (50, 100, 100) //(42, 85, 32));
 												// //(142, 207, 126));
 		// tm.setPosition(new Point(xMapStart, yMapStart));
 		environmentConfiguration = new EnvironmentConfiguration();
@@ -107,7 +107,7 @@ public abstract class Environment extends GameGrid implements
 	}
 	
 	public void addPart(Part part) {
-		addActor(part, nxt.getPartLocation(part), startDirection);
+		addActor(part, nxt.getPartLocation(part), nxt.getDirection());
 	}
 
 	public void addObstacleWithoutOffset(Obstacle obstacle, int x, int y) {
@@ -277,6 +277,8 @@ public abstract class Environment extends GameGrid implements
 						setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
 					} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
 						paintCell(mouse.getX(), mouse.getY());
+					} else if (EnvironmentActions.CLEAN.equals(getEnvironmentAction())) {
+						cleanCell(mouse.getX(), mouse.getY());
 					}
 				}			
 				break;
@@ -428,6 +430,8 @@ public abstract class Environment extends GameGrid implements
 			// Se quita la localizacion a la configuracion
 			getEnvironmentConfiguration().removeObstacle(location.toString());
 			refresh();
+		} else {
+			paintCell(x, y, AdministratorConstants.backgroundColor);
 		}
 	}	
 	
