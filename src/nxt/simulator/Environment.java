@@ -38,6 +38,7 @@ public abstract class Environment extends GameGrid implements
 	protected static boolean isNavigationBar = false;
 	protected RobotCar nxt = new RobotCar(startLocation, "Brick.png");
 	protected EnvironmentConfiguration environmentConfiguration;
+	protected static String obstacleImage = "sprites/brickWhite.png";
 
 	public EnvironmentActions getEnvironmentAction() {
 		return environmentAction;
@@ -179,7 +180,7 @@ public abstract class Environment extends GameGrid implements
         	String[] strs = pos.split(", ");
         	int x = new Integer(strs[0]).intValue();
         	int y = new Integer(strs[1]).intValue();
-    		tileMap.setImage("sprites/brick.gif", x, y);
+    		tileMap.setImage(obstacleImage, x, y);
     		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
         }
         setTm(tileMap);
@@ -195,7 +196,7 @@ public abstract class Environment extends GameGrid implements
         	String[] strs = pos.subSequence(1, pos.length() -1).toString().split(", ");
         	int x = new Integer(strs[0]).intValue();
         	int y = new Integer(strs[1]).intValue();
-    		tileMap.setImage("sprites/brick.gif", x, y);
+    		tileMap.setImage(obstacleImage, x, y);
     		tileMap.setTileCollisionEnabled(new Location(x, y), true);
     		// Se agrega el tile a la lista de colision de los distintos sensores y el robot
     		Location location = new Location(x, y);
@@ -230,7 +231,7 @@ public abstract class Environment extends GameGrid implements
 //        	String[] strs = pos.split(", ");
 //        	int x = new Integer(strs[0]).intValue();
 //        	int y = new Integer(strs[1]).intValue();
-//    		tileMap.setImage("sprites/brick.gif", x, y);
+//    		tileMap.setImage(obstacleImage, x, y);
 //    		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
 //        }
 //        setTm(tileMap);
@@ -387,7 +388,7 @@ public abstract class Environment extends GameGrid implements
 		int posTileY = y / 20;
 		Location location = new Location(posTileX, posTileY);
 		if (!getTileMap().isTileCollisionEnabled(location)) {
-			getTileMap().setImage("sprites/brick.gif", posTileX, posTileY);
+			getTileMap().setImage(obstacleImage, posTileX, posTileY);
 			getTileMap().setTileCollisionEnabled(location, true);
 			// Se agrega el tile a la lista de colision de los distintos sensores y el robot
 			getNxt().addCollisionTile(location);
