@@ -3,6 +3,8 @@
  */
 package tools;
 
+import java.awt.Color;
+
 import ch.aplu.jgamegrid.Location;
 
 /**
@@ -51,6 +53,8 @@ public interface AdministratorConstants {
     public static final int BLUE_INDEX = 2;
     /** Color sensor data BLANK/Background value index. */
     public static final int BLANK_INDEX = 3;
+    
+    public static final Color backgroundColor = new Color(56, 114, 114);
     
     //Tiles
     public static final int TILE_WIDTH = 20;
