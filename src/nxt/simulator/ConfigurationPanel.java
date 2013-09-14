@@ -2,134 +2,77 @@ package nxt.simulator;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.event.KeyEvent;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.net.URL;
 
-import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
+import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.JRadioButton;
 
-import ch.aplu.jgamegrid.Location;
-
-public class ConfigurationPanel extends JPanel implements ActionListener {
+public class ConfigurationPanel extends JPanel{
 	
-	protected String obst1Name = "obstacles/obst1.gif";
-	
-	//Group the radio buttons.
-    protected ButtonGroup group = new ButtonGroup();
-    protected JComboBox imagesCombo = new JComboBox();
-    protected JLabel lblImage = new JLabel();
-    
-    protected JTextField xvalue = new JTextField();
-    protected JTextField yvalue = new JTextField();
-    
+	protected String obst0Name = "obstacles/obst0.gif";
+	protected String obst1Name = "obstacles/obst1.gif";	
 	
 	public ConfigurationPanel(){
-	    // Panel de coordenadas
-        JPanel coordPanel = new JPanel(new GridBagLayout()); 
+	    //Create the radio buttons.
+	    JRadioButton optButton0 = new JRadioButton("hola");
+	    optButton0.setMnemonic(KeyEvent.VK_B);
+	    optButton0.setActionCommand(obst0Name);
+	    //optButton0.setIcon(getImage("../../sprites/obstacles/obst0.gif"));
+	    optButton0.setSelected(true);
+	
+	    JRadioButton optButton1 = new JRadioButton("dos");
+	    optButton1.setMnemonic(KeyEvent.VK_C);
+	    optButton1.setActionCommand(obst1Name);
+	    
+        //Group the radio buttons.
+        ButtonGroup group = new ButtonGroup();
+        group.add(optButton0);
+        group.add(optButton1);
         
-//        coordPanel.add(new JLabel("x: "));
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.gridx = 0; // El área de texto empieza en la columna cero.
-        constraints.gridy = 0; // El área de texto empieza en la fila cero
-        constraints.gridwidth = 1; // El área de texto ocupa dos columnas.
-        constraints.gridheight = 1; // El área de texto ocupa 2 filas.
-        coordPanel.add (new JLabel("x: "), constraints);        
-                
-        xvalue.setText("250");
-        //xvalue.setSize(100, 1);
-//        coordPanel.add(xvalue);
-        constraints.gridx = 1; // El área de texto empieza en la columna cero.
-        constraints.gridy = 0; // El área de texto empieza en la fila cero
-        constraints.gridwidth = 1; // El área de texto ocupa dos columnas.
-        constraints.gridheight = 1; // El área de texto ocupa 2 filas.
-        coordPanel.add (xvalue, constraints);        
+        //Put the radio buttons in a column in a panel.
+        JPanel radioPanel = new JPanel(new GridLayout(0, 2));
+        radioPanel.add(optButton0);
+        ImageIcon img0 = getImage("../../sprites/obstacles/obst1.gif");
+        JLabel lbl0 = new JLabel(img0);
+        lbl0.setPreferredSize(new Dimension(10, 10));        
+        radioPanel.add(lbl0);
         
-//        coordPanel.add(new JLabel("y: "));
-        constraints.gridx = 0; // El área de texto empieza en la columna cero.
-        constraints.gridy = 1; // El área de texto empieza en la fila cero
-        constraints.gridwidth = 1; // El área de texto ocupa dos columnas.
-        constraints.gridheight = 1; // El área de texto ocupa 2 filas.
-        coordPanel.add (new JLabel("y: "), constraints);
+        radioPanel.add(optButton1);
+        ImageIcon img1 = getImage("../../sprites/obstacles/obst3.gif");
+        JLabel lbl1 = new JLabel(img1);       
+        lbl1.setPreferredSize(new Dimension(10, 10));
+//        radioPanel.add(new JButton(getImage("../../sprites/obstacles/obst2.gif")));
+        radioPanel.add(lbl1);
         
-        yvalue.setText("400");
-        //yvalue.setSize(2, 2);
-//        coordPanel.add(yvalue);
-        constraints.gridx = 1; // El área de texto empieza en la columna cero.
-        constraints.gridy = 1; // El área de texto empieza en la fila cero
-        constraints.gridwidth = 1; // El área de texto ocupa dos columnas.
-        constraints.gridheight = 1; // El área de texto ocupa 2 filas.
-        coordPanel.add (yvalue, constraints);        
-
-        constraints.gridx = 0; // El área de texto empieza en la columna cero.
-        constraints.gridy = 2; // El área de texto empieza en la fila cero
-        constraints.gridwidth = 2; // El área de texto ocupa dos columnas.
-        constraints.gridheight = 1; // El área de texto ocupa 2 filas.
-        String path = "src/sprites/obstacles/";
-        File dir = new File(path);
-        String[] images = dir.list();
-        if (images == null) {
-        	System.out.println("No hay imagenes en el directorio especificado");
-        }
-    	else { 
-    	  for (int x=0; x<images.length; x++) {
-    		  imagesCombo.addItem(images[x]);
-    	  }
-    	}
-        imagesCombo.addActionListener(this);
-        coordPanel.add (imagesCombo, constraints);        
-
-        constraints.gridx = 0; // El área de texto empieza en la columna cero.
-        constraints.gridy = 3; // El área de texto empieza en la fila cero
-        constraints.gridwidth = 2; // El área de texto ocupa dos columnas.
-        constraints.gridheight = 5; // El área de texto ocupa 2 filas.        
-        lblImage.setIcon(getImage("../../sprites/obstacles/" + (String) imagesCombo.getSelectedItem()));
-        lblImage.setPreferredSize(new Dimension(150, 300));
-        coordPanel.add (lblImage, constraints);        
-        
-        
-        //Panel de seleccion de imagenes
-//        JPanel imagePanel = new JPanel(new BorderLayout());
-        
-//        String path = "src/sprites/obstacles/";
-//        File dir = new File(path);
-//        String[] images = dir.list();
-//        if (images == null) {
-//        	System.out.println("No hay imagenes en el directorio especificado");
-//        }
-//    	else { 
-//    	  for (int x=0; x<images.length; x++) {
-//    		  imagesCombo.addItem(images[x]);
-//    	  }
-//    	}
-//        imagesCombo.addActionListener(this);
-//        imagePanel.add(imagesCombo, BorderLayout.PAGE_START);
-        
-        
-//        lblImage.setIcon(getImage("../../sprites/obstacles/obst5.gif"));
-//        lblImage.setPreferredSize(new Dimension(90, 90));
-//        imagePanel.add(lblImage, BorderLayout.PAGE_END);
         
         //setLayout(new FlowLayout(FlowLayout.LEFT, 10, 20));
         
-        //add(radioPanel, BorderLayout.LINE_START);
-//        setLayout(new GridLayout(2, 1));
-        setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
-//        add(coordPanel);
-//        add(imagePanel);
-        add(coordPanel, BorderLayout.NORTH);
-//        add(imagePanel, BorderLayout.SOUTH);
-        //add(lblImage, BorderLayout.CENTER);
-        //add(imagesCombo, BorderLayout.PAGE_END);
+        add(radioPanel, BorderLayout.LINE_START);
+        /*add(radioPanel);
+        add(new JButton("1"));
+        add(new JButton("1"));
+        add(new JButton("1"));
+        add(new JButton("1"));
+        setSize(50,50);
+        
+        setLayout(new FlowLayout(FlowLayout.LEFT, 5, 10));
+        for(int i = 1; i <= 10; i++)
+        add(new JButton("Componente " + i));
+        setSize(200,200);//pack();
+        setVisible(true);
+        */
 	}
 
 	/**
@@ -148,26 +91,4 @@ public class ConfigurationPanel extends JPanel implements ActionListener {
         }
         return image;
     }
-
-	public String getSelectedObstacle() {
-		//return group.getSelection().getActionCommand();
-		return (String) imagesCombo.getSelectedItem(); 
-	}
-	
-	public Location getObstacleLocation() {
-		try {
-			Integer xIntValue = new Integer(xvalue.getText());
-			Integer yIntValue = new Integer(yvalue.getText());
-			return new Location(xIntValue,yIntValue);
-		}
-		catch (NumberFormatException nfe) {
-			return new Location(0,0);
-		}
-	}
-	
-    /** Listens to the combo box. */
-    public void actionPerformed(ActionEvent e) {
-        lblImage.setIcon(getImage("../../sprites/obstacles/" + imagesCombo.getSelectedItem()));
-    }
-	
 }

@@ -1,7 +1,6 @@
 package lejos.nxt;
 
 import nxt.simulator.Environment;
-import nxt.simulator.Environment;
 import nxt.simulator.Part;
 import tools.AdministratorConstants;
 import ch.aplu.jgamegrid.Location;

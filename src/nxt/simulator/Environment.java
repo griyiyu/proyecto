@@ -5,29 +5,25 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import nxt.simulator.UI.EnvironmentUI;
+import java.util.Set;
 
 import lejos.nxt.Motor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.Sensor;
-import lejos.nxt.SensorPort;
 import lejos.nxt.UltrasonicSensor;
+import nxt.simulator.UI.EnvironmentUI;
 import tools.AdministratorConstants;
 import tools.EnvironmentActions;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GGBackground;
 import ch.aplu.jgamegrid.GGMouse;
 import ch.aplu.jgamegrid.GGMouseListener;
-import ch.aplu.jgamegrid.GGTileCollisionListener;
 import ch.aplu.jgamegrid.GGTileMap;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
 
 public abstract class Environment extends GameGrid implements
-		AdministratorConstants, GGTileCollisionListener, GGMouseListener {
+		AdministratorConstants, GGMouseListener {
 
 	//private static final long serialVersionUID = 1L;
 	// Cuadro de 2m x 1.2m (1 pixel equivale a 2 mm)
@@ -48,11 +44,7 @@ public abstract class Environment extends GameGrid implements
 		this.environmentAction = environmentAction;
 	}
 
-	private final int nbHorzTiles = 50;
-	private final int nbVertTiles = 30;
-	private final int tileSize = 20;
-	private GGTileMap tm = createTileMap(nbHorzTiles, nbVertTiles, tileSize,
-			tileSize);
+
 	private final int xMapStart = 0;
 	private final int yMapStart = 0;	
  
@@ -89,12 +81,11 @@ public abstract class Environment extends GameGrid implements
 //		setCellSize(20);
 //		setGridColor(Color.red);
 		setCellSize(1);
-		setNbVertCells(high); //nbVertTiles
-		setNbHorzCells(width); //nbHorzTiles		
+		setNbVertCells(high); 
+		setNbHorzCells(width); 		
 		setBgColor(new Color(56, 114, 114));
 		environmentConfiguration = new EnvironmentConfiguration();
 		Sensor.setEnvironment(this);
-		clearTileMap(getTm());
 	}
 
 	public void addNXT() {
@@ -111,19 +102,34 @@ public abstract class Environment extends GameGrid implements
 	}
 
 	public void addObstacleWithoutOffset(Obstacle obstacle, int x, int y) {
-		super.addActor(obstacle, new Location(x, y));
+		addActor(obstacle, new Location(x, y));
 	}
 
 	public void addObstacle(Obstacle obstacle, int x, int y) {
 		Location recalculatedLocation = setOffset(obstacle, new Location(x, y));
-		addActor(obstacle, recalculatedLocation);
-		obstacle.addCollisionTile(new Location(x, y));
+		ArrayList<Actor> obstacles = getActorsAt(recalculatedLocation, Obstacle.class);
+		if (obstacles == null || obstacles.isEmpty()) {
+			addActor(obstacle, recalculatedLocation);
+		}
 	}
 
 	public void removeObstacle(String obstacleName) {
 		removeActor(getObstacle(obstacleName));
 	}
 
+	public void removeObstaclesAtLocation(int x, int y) {
+		//Se busca la posición el obstaculo mediante el punto central de la imagen.
+		int posTileX = x / 20;
+		int posTileY = y / 20;
+		int posX = posTileX * AdministratorConstants.TILE_WIDTH + AdministratorConstants.TILE_WIDTH / 2;
+		int posY = posTileY * AdministratorConstants.TILE_WIDTH + AdministratorConstants.TILE_WIDTH / 2;		
+		ArrayList<Actor> obstacles = getActorsAt(new Location(posX,posY), Obstacle.class);
+		for (Actor obstacle : obstacles) {
+			removeActor(obstacle);
+		}
+		refresh();
+	}
+	
 	public Obstacle getObstacle(String imageName) {
 		for (Actor actor : getActors(Obstacle.class)) {
 			Obstacle obstacle = (Obstacle) actor;
@@ -143,100 +149,6 @@ public abstract class Environment extends GameGrid implements
 	public void showActor() { // (Actor a) {
 		// tsw.show(); //a.show();
 	}
-
-	public GGTileMap getTm() {
-		return tm;
-	}
-	
-	public void setTm(GGTileMap tm) {
-		this.tm = tm;
-	}
-	
-	public String getTMObstaclesAsString() {
-		String returnedString = "";
-		ArrayList<Location> locations = new ArrayList<Location>();
-		GGTileMap tm = getTileMap();
-		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
-			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
-				Location locAux = new Location(i, j);
-				if (tm.isTileCollisionEnabled(locAux)) {
-					locations.add(locAux);
-				}				
-			}
-		}
-		returnedString = locations.toString();
-		return returnedString;
-	}
-	
-	public void setTMObstaclesFromString(String tiles) {
-        List<String> matches = new ArrayList<String>();
-        Matcher m = Pattern.compile("\\d+,\\s\\d+").matcher(tiles);
-        while(m.find()) {
-            matches.add(m.group());
-        }
-        GGTileMap tileMap = createTileMap(50, 30, 20, 20);
-        clearTileMap(tileMap);
-        for (String pos : matches) {
-        	String[] strs = pos.split(", ");
-        	int x = new Integer(strs[0]).intValue();
-        	int y = new Integer(strs[1]).intValue();
-    		tileMap.setImage(obstacleImage, x, y);
-    		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
-        }
-        setTm(tileMap);
-        refresh();
-	}
-	
-	public void refreshEnvironmentConfiguration() {
-		EnvironmentConfiguration environmentConfiguration = this.getEnvironmentConfiguration();
-		List<String> obstaclesPositions = environmentConfiguration.getObstacles();
-        GGTileMap tileMap = createTileMap(50, 30, 20, 20);
-        clearTileMap(tileMap);
-        for (String pos : obstaclesPositions) {
-        	String[] strs = pos.subSequence(1, pos.length() -1).toString().split(", ");
-        	int x = new Integer(strs[0]).intValue();
-        	int y = new Integer(strs[1]).intValue();
-    		tileMap.setImage(obstacleImage, x, y);
-    		tileMap.setTileCollisionEnabled(new Location(x, y), true);
-    		// Se agrega el tile a la lista de colision de los distintos sensores y el robot
-    		Location location = new Location(x, y);
-    		getNxt().addCollisionTile(location);
-    		for (Actor sensor : getActors(Sensor.class)) {
-    			sensor.addCollisionTile(location);
-    		}
-    		for (Actor motor : getActors(Motor.class)) {
-    			motor.addCollisionTile(location);
-    		}		
-        }
-		Map<String, Color> colorsPositions = environmentConfiguration.getColorsTM();
-        for (Map.Entry<String, Color> entry : colorsPositions.entrySet()) {
-        	String[] strs = entry.getKey().subSequence(1, entry.getKey().length() -1).toString().split(", ");
-        	int x = new Integer(strs[0]).intValue();
-        	int y = new Integer(strs[1]).intValue();
-        	paintCell(x, y, entry.getValue());
-        }
-        getNxt().moveCar(environmentConfiguration.getPosRobotX(), environmentConfiguration.getPosRobotY(), 
-        		environmentConfiguration.getDirectionRobot());
-       
-        setTm(tileMap);
-        refresh();
-		
-//		Matcher m = Pattern.compile("\\d+,\\s\\d+").matcher(tiles);
-//        while(m.find()) {
-//            matches.add(m.group());
-//        }
-//        GGTileMap tileMap = createTileMap(50, 30, 20, 20);
-//        clearTileMap(tileMap);
-//        for (String pos : matches) {
-//        	String[] strs = pos.split(", ");
-//        	int x = new Integer(strs[0]).intValue();
-//        	int y = new Integer(strs[1]).intValue();
-//    		tileMap.setImage(obstacleImage, x, y);
-//    		tileMap.setTileCollisionEnabled(new Location(x, y), true);        	
-//        }
-//        setTm(tileMap);
-//        refresh();
-	}	
 	
 
 	public boolean mouseEvent(GGMouse mouse) {
@@ -261,7 +173,7 @@ public abstract class Environment extends GameGrid implements
 			case GGMouse.lClick:
 				if (!clickOnRobot) {
 					if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
-						setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+						addObstacleInCell(mouse.getX(), mouse.getY());
 					} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
 						paintCell(mouse.getX(), mouse.getY());
 					} else if (EnvironmentActions.CLEAN.equals(getEnvironmentAction())) {
@@ -274,7 +186,7 @@ public abstract class Environment extends GameGrid implements
 					moveNXT(mouse.getX(), mouse.getY());
 				} else if (!clickOnRobot){
 					if (EnvironmentActions.ADD.equals(getEnvironmentAction())) {
-						setToTrueTileCollisionEnabledCel(mouse.getX(), mouse.getY());
+						addObstacleInCell(mouse.getX(), mouse.getY());
 					} else if (EnvironmentActions.PAINT.equals(getEnvironmentAction())) {
 						paintCell(mouse.getX(), mouse.getY());
 					} else if (EnvironmentActions.CLEAN.equals(getEnvironmentAction())) {
@@ -292,8 +204,8 @@ public abstract class Environment extends GameGrid implements
 				}
 				break;
 			}
-		}
-		return true;
+		}	
+		return true;		
 	}
 
 	protected void paintCell() {
@@ -317,15 +229,23 @@ public abstract class Environment extends GameGrid implements
 	    bg.setPaintColor(color);
 	    bg.fillRectangle(new Point(posX, posY), 
 	    		new Point(posX + AdministratorConstants.TILE_WIDTH, posY + AdministratorConstants.TILE_WIDTH));
-//	    bg.fillCircle(new Point(500, 250), 150);
-//	    bg.setPaintColor(c);
-//	    bg.fillCircle(new Point(500, 250), 130);
-//	    colorsTM.put(new Location(posTileX, posTileY), Color.black);
 	    //Se agrega la localización en la configuración
 	    Location location = new Location(posX, posY);
 	    getEnvironmentConfiguration().addColor(location.toString(), color);
 //	    show();
 	    refresh();
+	}
+	
+	public void addObstacleInCell(int x, int y) {
+		int posTileX = x / 20;
+		int posTileY = y / 20;
+		int posX = posTileX * AdministratorConstants.TILE_WIDTH;
+		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
+		Location location = new Location(posTileX, posTileY);
+		addObstacle(new Obstacle(), posX, posY);
+		// Se agrega la localizacion a la configuracion
+		getEnvironmentConfiguration().addObstacle(location.toString());		
+		
 	}
 	
 	protected void moveNXT(int x, int y) {
@@ -377,98 +297,20 @@ public abstract class Environment extends GameGrid implements
 			EnvironmentConfiguration environmentConfiguration) {
 		this.environmentConfiguration = environmentConfiguration;
 	}
-
-	/**
-	 * @param x Cordenada del eje x
-	 * @param y Cordenada del eje y
-	 **/
-	public void setToTrueTileCollisionEnabledCel(int x, int y) {
-		// Obtengo la esquina superior del tile para luego setear la propiedad
-		// de colision a true
-
-		int posTileX = x / 20;
-		int posTileY = y / 20;
-		Location location = new Location(posTileX, posTileY);
-		if (!getTileMap().isTileCollisionEnabled(location)) {
-			getTileMap().setImage(obstacleImage, posTileX, posTileY);
-			getTileMap().setTileCollisionEnabled(location, true);
-			// Se agrega el tile a la lista de colision de los distintos sensores y el robot
-			getNxt().addCollisionTile(location);
-			for (Actor sensor : getActors(Sensor.class)) {
-				sensor.addCollisionTile(location);
-			}
-			for (Actor motor : getActors(Motor.class)) {
-				motor.addCollisionTile(location);
-			}		
-			// Se agrega la localizacion a la configuracion
-			getEnvironmentConfiguration().addObstacle(location.toString());
-			refresh();
-		}
-	}
 	
 	public void cleanCell(int x, int y) {
-		// Obtengo la esquina superior del tile para luego setear la propiedad
-		// de colision a true
-
-		int posTileX = x / 20;
-		int posTileY = y / 20;
-		Location location = new Location(posTileX, posTileY);
-		if (getTileMap().isTileCollisionEnabled(location)) {
-			getTileMap().setImage("", posTileX, posTileY);
-			getTileMap().setTileCollisionEnabled(location, false);
-			// Se quita el tile a la lista de colision de los distintos sensores y el robot
-			ArrayList<Location> aux = getNxt().getCollisionTiles(); 
-			aux.remove(location);			
-			for (Actor sensor : getActors(UltrasonicSensor.class)) {
-				aux = sensor.getCollisionTiles(); 
-				aux.remove(location);			
-			}
-			for (Actor motor : getActors(Motor.class)) {
-				aux = motor.getCollisionTiles(); 
-				aux.remove(location);			
-			}		
-			// Se quita la localizacion a la configuracion
-			getEnvironmentConfiguration().removeObstacle(location.toString());
-			refresh();
-		} else {
-			paintCell(x, y, AdministratorConstants.backgroundColor);
-		}
+		removeObstaclesAtLocation(x,y);
+		paintCell(x, y, AdministratorConstants.backgroundColor);
+		
 	}	
 	
-	
-	public void clearTileMap(GGTileMap tileMap) {
-//		setTm(createTileMap(50, 30, 20, 20));
-		//Se setea la propiedad isTileCollisionEnabled a false para todas las celdas del tileMap
-		GGTileMap tm = tileMap;
-		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
-			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
-				Location locAux = new Location(i, j);
-				if (tm.isTileCollisionEnabled(locAux)) {
-					tm.setTileCollisionEnabled(locAux, false);
-				}				
-			}
-		}					
-//		refresh();			
-	}
-	
 	public void clear() {
-		setTm(createTileMap(50, 30, 20, 20));
-		//Se setea la propiedad isTileCollisionEnabled a false para todas las celdas del tileMap
-//		GGTileMap tm = getTileMap();
-//		for (int i = 0 ; i < tm.getNbHorzTiles() ; i++) {
-//			for (int j = 0 ; j < tm.getNbVertTiles() ; j++) {
-//				Location locAux = new Location(i, j);
-//				if (tm.isTileCollisionEnabled(locAux)) {
-//					tm.setTileCollisionEnabled(locAux, false);
-//				}				
-//			}
-//		}
-		clearTileMap(this.getTm());
 		getBg().clear();
-		//Se limpia la lista de tiles
-		ArrayList<Location> aux = nxt.getCollisionTiles(); 
-		aux.removeAll(nxt.getCollisionTiles());
-		
+		for (Actor obstacle : getActors(Obstacle.class)) {
+			removeActor(obstacle);	
+		}		
+		getEnvironmentConfiguration().removeAllObstacles();
+		getEnvironmentConfiguration().removeAllColors();
 		refresh();	
 	}
 
@@ -504,6 +346,28 @@ public abstract class Environment extends GameGrid implements
 	public EnvironmentUI getEnvironmentUI() {
 		return environmentUI;
 	}
+	
+	public void refreshEnvironmentConfiguration() {
+		//EnvironmentConfiguration environmentConfiguration = this.getEnvironmentConfiguration();
+		Set<String> obstaclesPositions = environmentConfiguration.getObstacles();
+        for (String pos : obstaclesPositions) {
+        	String[] strs = pos.subSequence(1, pos.length() -1).toString().split(", ");
+        	int x = new Integer(strs[0]).intValue() * 20;
+        	int y = new Integer(strs[1]).intValue() * 20;
+    		addObstacle(new Obstacle(), x, y);
+        }
+		Map<String, Color> colorsPositions = environmentConfiguration.getColorsTM();
+        for (Map.Entry<String, Color> entry : colorsPositions.entrySet()) {
+        	String[] strs = entry.getKey().subSequence(1, entry.getKey().length() -1).toString().split(", ");
+        	int x = new Integer(strs[0]).intValue();
+        	int y = new Integer(strs[1]).intValue();
+        	paintCell(x, y, entry.getValue());
+        }
+        getNxt().moveCar(environmentConfiguration.getPosRobotX(), environmentConfiguration.getPosRobotY(), 
+        		environmentConfiguration.getDirectionRobot());
+        refresh();
+	}	
+
 	
 
 }

@@ -45,6 +45,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	protected Label lblValueP2;
 	
 	private Thread job = null;
+	//private Job job = null;
 
 	/**
 	 * Launch the application.
@@ -91,20 +92,23 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		leftPanel = new JPanel();
 //		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.X_AXIS));
 		leftPanel.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+		
 		
 		// Opción de agregar
 		addButton = new JRadioButton("Agregar");
+		addButton.setToolTipText("Agrega un obst\u00E1culo haciendo click con el mouse en el ambiente.");
 		addButton.setMnemonic(KeyEvent.VK_A);
 		addButton.setActionCommand(EnvironmentActions.ADD.getCode().toString());
 		addButton.setSelected(true);
 		// Opción de pintar
 		paintButton = new JRadioButton("Pintar");
+		paintButton.setToolTipText("Pinta el fondo del color seleccionado en el combo haciendo click con el mouse en el ambiente.");
 		paintButton.setMnemonic(KeyEvent.VK_P);
 		paintButton.setActionCommand(EnvironmentActions.PAINT.getCode()
 				.toString());
 		// Opción de limpiar
-		cleanButton = new JRadioButton("Limpiar");
+		cleanButton = new JRadioButton("Borrar");
+		cleanButton.setToolTipText("Borra el obst\u00E1culo o el fondo haciendo click con el mouse en el obst\u00E1culo o fondo pintado.");
 		cleanButton.setMnemonic(KeyEvent.VK_L);
 		cleanButton.setActionCommand(EnvironmentActions.CLEAN.getCode()
 				.toString());				
@@ -118,23 +122,27 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		paintButton.addActionListener(this);
 		cleanButton.addActionListener(this);
 		// Se agregan las opciones al panel izquierdo
+		GridBagConstraints c = new GridBagConstraints();
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 0;
 		c.gridy = 0;
 		leftPanel.add(addButton, c);
 		
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 1;		
-		leftPanel.add(paintButton, c);
+		GridBagConstraints c2 = new GridBagConstraints();
+		c2.fill = GridBagConstraints.HORIZONTAL;
+		c2.gridx = 0;
+		c2.gridy = 1;		
+		leftPanel.add(paintButton, c2);
 		
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 2;		
-		leftPanel.add(cleanButton, c);		
+		GridBagConstraints c3 = new GridBagConstraints();
+		c3.fill = GridBagConstraints.HORIZONTAL;
+		c3.gridx = 0;
+		c3.gridy = 2;		
+		leftPanel.add(cleanButton, c3);		
 		
 		//Combobox de colores
 		final JComboBox colorsList = new JComboBox(EnvironmentColors.values());
+		colorsList.setToolTipText("Selecci\u00F3n del color con el cual se desea pintar el fondo del ambiente.");
 		colorsList.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) {
 				Color color = ((EnvironmentColors)colorsList.getSelectedItem()).getColor();
@@ -146,68 +154,26 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		colorsList.setMaximumSize(new Dimension(90,20));
 		colorsList.addActionListener(this);
 //		leftPanel.add(colorsList);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 1;			
-		leftPanel.add(colorsList, c);
+		GridBagConstraints c4 = new GridBagConstraints();
+		c4.fill = GridBagConstraints.HORIZONTAL;
+		c4.gridx = 1;
+		c4.gridy = 1;			
+		leftPanel.add(colorsList, c4);
 		
-		//Puertos 
-		Label lblP1 = new Label("Puerto1");
-		Label lblP2 = new Label("Puerto2");
-		Label lblP3 = new Label("Puerto3");
-		Label lblP4 = new Label("Puerto4");
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 3;
-		leftPanel.add(lblP1, c);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 4;
-		leftPanel.add(lblP2, c);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 5;
-		leftPanel.add(lblP3, c);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 0;
-		c.gridy = 6;
-		leftPanel.add(lblP4, c);
-		final JComboBox comboPort1 = new JComboBox(SensorEnum.values());
-//		comboPort1.addItemListener(new ItemListener() {
-//			public void itemStateChanged(ItemEvent arg0) {
-//				Sensor sensor = ((SensorEnum)comboPort1.getSelectedItem()).getSensor();
-//				environment.getNxt();
-//			}
-//		});		
-//		final JComboBox comboPort2 = new JComboBox(SensorEnum.values());
-		lblValueP2 = new Label("value");
-		final JComboBox comboPort3 = new JComboBox(SensorEnum.values());
-		final JComboBox comboPort4 = new JComboBox(SensorEnum.values());
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 3;			
-		leftPanel.add(comboPort1, c);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 4;			
-		leftPanel.add(lblValueP2, c);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 5;			
-		leftPanel.add(comboPort3, c);
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.gridx = 1;
-		c.gridy = 6;			
-		leftPanel.add(comboPort4, c);
 		
 		// Se crea el panel inferior con los botones
 		southPanel = new JPanel();
 		southPanel.setLayout(new BoxLayout(southPanel, BoxLayout.X_AXIS));
 		btnSave = new JButton("Guardar");
+		btnSave.setToolTipText("Guarda el ambiente creado.");
 		btnLoad = new JButton("Cargar");
+		btnLoad.setToolTipText("Carga en pantalla un ambiente guardado previamente.");
 		btnClear = new JButton("Limpiar");
+		btnClear.setToolTipText("Limpia el ambiente en pantalla.");
 		btnSimulate = new JButton("Simular");
-		btnStop = new JButton("Stop");
+		btnSimulate.setToolTipText("Comienza la simulaci\u00F3n.");
+		btnStop = new JButton("Detener");
+		btnStop.setToolTipText("Detiene la simulaci\u00F3n.");
 
 		// Se agregan los listeners para los botones
 		btnSave.addActionListener(new ActionListener() {
@@ -248,22 +214,24 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		});
 		btnSimulate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (job == null) {
-					job = new Thread(new Job((EnvironmentTest)environment));
-					job.start();
-				}
 				environment.setEnvironmentAction(EnvironmentActions.RUN);				
 				environment.doRun();
+				if (job == null) {
+					job = new Thread(new Job((EnvironmentTest)environment));
+					//job.run();
+					job.start();
+				}
+				
 			}
 		});
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {				
-				environment.doPause();
+				environment.doPause(); //stopGameThread(); //
 				environment.setEnvironmentAction(EnvironmentActions
 						.getState((new Integer((String) group.getSelection().getActionCommand()))
 								.intValue()));
-				
-				job.stop();
+				//if (job != null)
+				//	job.interrupt(); // job.stop();
 				job = null;
 				
 			}
@@ -283,9 +251,14 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		environment.setEnvironmentAction(EnvironmentActions
-				.getState((new Integer((String) e.getActionCommand()))
-						.intValue()));
+		String actionCommand = e.getActionCommand();
+		try {
+			Integer actionCommandNumber = new Integer(actionCommand);
+			environment.setEnvironmentAction(EnvironmentActions
+				.getState(actionCommandNumber.intValue()));
+		} catch (NumberFormatException nfe) {
+			// No es una acción del estado del environment.
+		}
 	}
 
 	public Environment getEnvironment() {

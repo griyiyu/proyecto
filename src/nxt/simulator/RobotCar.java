@@ -1,12 +1,8 @@
 package nxt.simulator;
 
 import java.awt.Point;
-import java.util.ArrayList;
 
 import lejos.nxt.Motor;
-import lejos.nxt.Sensor;
-import lejos.nxt.TouchSensor;
-import lejos.nxt.UltrasonicSensor;
 
 import tools.AdministratorConstants;
 import ch.aplu.jgamegrid.Actor;
@@ -17,17 +13,17 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	/**
 	 * Centro de colisión del robot.
 	 */
-	protected static Point collisionCenter = new Point(0,0);
+	protected static Point collisionCenter = new Point(0,0);//(-13, 0);
 	
 	/**
 	 * Radio de colisión del robot.
 	 */
-	protected static int collisionRadius = 30;
+	protected static int collisionRadius = 30;//18;
 
 	/**
 	 * Factor de corrección por el rosamiento en el suelo etc.
 	 */
-	protected static final double FACTOR_WHEEL = -0.3;
+	protected static final double FACTOR_WHEEL = -0.3;//-0.3;
 	
 	
 	/**
@@ -35,8 +31,6 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	 */
 	protected static final double RADIO_WHEEL = 2 + FACTOR_WHEEL;
 	
-	
-	private Location lastTilePosition;
 	
 	/**
 	 * Constructor del robot automovil
@@ -47,14 +41,18 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	public RobotCar(Location startLocation, String imageName) {
 		super(true, AdministratorConstants.IMAGE_PATH + imageName);
 		addActorCollisionListener(this);
-	    setCollisionCircle(collisionCenter, collisionRadius + 10);
-	    addTileCollisionListener(this);
+	    setCollisionCircle(collisionCenter, collisionRadius); 
 	}
 		
 	
 	@Override
-	public synchronized void act() {
-		((Environment)gameGrid).setCicleStartTime(System.currentTimeMillis());
+	public synchronized void act() {//move() {
+		
+		// Se actualizan los valores de los sensores. 
+//		for (Actor a : gameGrid.getActors(Sensor.class)) {
+//			((Sensor) a).detect();
+//		}		
+		
 		int modeA = Motor.A.getMode();
 		int modeB = Motor.B.getMode();
 		// Si los dos motores estan detenidos no se mueve el robot
@@ -66,10 +64,9 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		// Si los dos motores tienen velocidad cero no se mueve el robot		
 		if (speedA == 0 && speedB == 0) {
 			return;
-		}		
+		}
 		// Si el robot no se va del cuadro, intenta mover el robot
 		if (isMoveValid()) {
-
 			int speedA2 = getSpeedPxP(modeA, speedA);
 			int speedB2 = getSpeedPxP(modeB, speedB);
 			speedA = getSpeed(modeA, speedA);
@@ -91,46 +88,14 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			y = y + ((speedB2 + speedA2)/2) * Math.sin((float)tita * (Math.PI / (float)180));
 			int xPosition = (int)Math.round(x);
 			int yPosition = (int)Math.round(y);
-			
-			int posTileX = this.getLocation().getX() / 20;
-			int posTileY = this.getLocation().getY() / 20;
-			lastTilePosition = new Location(posTileX, posTileY);
 			// Verifica que el robot no se choque con nada en la nueva posición
-			boolean possibleMove = canMove(xPosition, yPosition, tita);
+			boolean possibleMove = canMove(xPosition, yPosition);
 			if (possibleMove) {
 				// Mueve el robot en la dirección y posición calculada
 				moveCar(xPosition, yPosition, tita);
 			}
+			//System.out.println(this.getY());
 		}
-	}
-	/**
-	 * Retorna true si alguno de los sensores o las ruedas toca un obstaculo
-	 * @return boolean
-	 */
-	private boolean isPartCollide(int x, int y, double direction) {
-		boolean returnedValue = false;
-		for (Actor sensor : gameGrid.getActors(Sensor.class)) {
-			if (sensor.getClass() == UltrasonicSensor.class) {
-				if (((UltrasonicSensor)sensor).isCollide(x, y, direction)) { 
-					returnedValue = true;
-					System.out.println("Esta tocando un sensor");
-					break;
-				}
-			} else if (((TouchSensor)sensor).isCollide(x, y, direction)) {
-				returnedValue = true;
-				break;
-			};
-		}
-		for (Actor wheel : gameGrid.getActors(Motor.class)) {
-			if (wheel.getClass() == Motor.class) {
-				if (((Motor)wheel).isCollide(x, y, direction)) {
-					returnedValue = true;
-					System.out.println("Esta tocando una rueda");
-					break;
-				}
-			};
-		}		
-		return returnedValue;
 	}
 
 	/**
@@ -197,6 +162,16 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			Part p = (Part) actor; 
 			p.setDirection(tita);
 			p.setLocation(getPartLocation(p));
+			/*
+			try {
+				Sensor sensor = (Sensor) p;
+				if (sensor.getSensorPor() == SensorPort.S4) {
+					p.setVertMirror(true);
+				}
+			} catch (ClassCastException cce) {
+				continue;
+			}
+			*/
 		}
 	}
 	
@@ -238,61 +213,19 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		return location;
 	}
 	
-	public boolean isTileColliding(Location posNextMoviment, double direction) {		
-		boolean returnedValue = false;
-		double tita = direction;
-		double xNew = getLocation().getX();
-		double yNew = getLocation().getY();		
-		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
-		xNew = (xNew + sumXOffset(posNextMoviment.getX())) * Math.cos((float) tita * (Math.PI / (float) 180));
-		yNew = (yNew + sumXOffset(posNextMoviment.getY())) * Math.sin((float) tita * (Math.PI / (float) 180));
-		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
-		
-		for (Location loc : getCollisionTiles()) {
-			for (Location occLoc : occupiedTiles){
-				if (loc.getX() == occLoc.getX() && loc.getY() == occLoc.getY()) {					
-					returnedValue = true;
-					break;
-				}
+	/**
+	 * Verifica si el robot esta colisionando con algún obstáculo {@link Obstacle} del entorno.
+	 * 
+	 * @return true si está colisionando y false de lo contrario
+	 */
+	public boolean isColliding() {
+		for (Actor a : gameGrid.getActors(Obstacle.class)) {
+			if (gameGrid.isActorColliding(a, this)) {
+				return true;
 			}
 		}
-		return returnedValue;
+		return false;
 	}
-	
-	private int sumXOffset(int nextCoordinate) {
-		int offset = 30;
-		int returnedValue = offset;
-		if ((getDirection() >= 0 && getDirection() < 90) || (getDirection() > 270 && getDirection() <= 360)) {
-			if (getX() - nextCoordinate < 0) {
-				returnedValue = offset;
-			} else {
-				returnedValue = -offset;
-			}
-		} else if (getX() - nextCoordinate < 0) {
-				returnedValue = -offset;
-			} else {
-				returnedValue = offset;
-			}
-		return returnedValue;
-	}
-	
-	private int sumYOffset(int nextCoordinate) {
-		int offset = 30;
-		int returnedValue = offset;
-		if (getDirection() >= 0 && getDirection() <180) {
-			if (getY() - nextCoordinate < 0) {
-				returnedValue = offset;
-			} else {
-				returnedValue = -offset;
-			}
-		} else if (getY() - nextCoordinate < 0) {
-				returnedValue = -offset;
-			} else {
-				returnedValue = offset;
-			}
-		return returnedValue;
-	}	
-	
 	
 	/**
 	 * Verifica si en la nueva posición pasada por parámetro el robot puede
@@ -303,10 +236,11 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	 * @return true si es que el robot no colisionará con ningún obstáculo en la
 	 *         nueva posición y false de lo contrario.
 	 */
-	protected boolean canMove(int x, int y, double direction) {
+	protected boolean canMove(int x, int y) {
 		Location actualPosition = getLocation();
+		setLocation(new Location(x,y));
 		boolean result = false;
-		if (isCollide(x, y, direction) || isPartCollide(x,y,direction)) {
+		if (isColliding()) {
 			result = false;
 		}
 		else {
@@ -315,27 +249,5 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		setLocation(actualPosition);
 		return result;
 	}
-	
-	public boolean isCollide(int x, int y, double direction) {
-		boolean returnedValue = false;
-		double tita = direction;
-		double xNew = getX();
-		double yNew = getY();	
-		ArrayList<Location> occupiedTiles = new ArrayList<Location>();
-		xNew = xNew + sumXOffset(x) * Math.cos((float) tita * (Math.PI / (float) 180));
-		yNew = yNew + sumYOffset(y) * Math.sin((float) tita * (Math.PI / (float) 180));
-		occupiedTiles.add(new Location((int) Math.round(xNew)/20, (int) Math.round(yNew)/20));
-
-		for (Location loc : getCollisionTiles()) {
-			for (Location occLoc : occupiedTiles){
-				if (loc.getX() == occLoc.getX() && loc.getY() == occLoc.getY()) {					
-					returnedValue = true;
-					break;				
-				}
-			}
-		}
-		return returnedValue;		
-	}	
-	
 
 }

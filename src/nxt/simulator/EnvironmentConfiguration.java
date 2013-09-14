@@ -4,28 +4,30 @@ import java.awt.Color;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import ch.aplu.jgamegrid.Location;
 
 public class EnvironmentConfiguration implements Serializable{
 
-	protected List<String> obstacles;
+	protected Set<String> obstacles;
 	protected HashMap<String, Color> colorsTM;
 	protected int posRobotX;
 	protected int posRobotY;
 	double directionRobot;
 
 	EnvironmentConfiguration() {
-		obstacles = new ArrayList<String>();
+		obstacles = new HashSet<String>();
 		colorsTM = new HashMap<String, Color>();
 	}
 	
-	public List<String> getObstacles() {
+	public Set<String> getObstacles() {
 		return obstacles;
 	}
 
-	public void setObstacles(List<String> obstacles) {
+	public void setObstacles(Set<String> obstacles) {
 		this.obstacles = obstacles;
 	}
 
@@ -73,5 +75,12 @@ public class EnvironmentConfiguration implements Serializable{
 		obstacles.remove(value);
 	}
 	
+	public void removeAllObstacles() {
+		obstacles = new HashSet<String>();
+	}
+	
+	public void removeAllColors() {
+		colorsTM = new HashMap<String, Color>();
+	}
 	
 }

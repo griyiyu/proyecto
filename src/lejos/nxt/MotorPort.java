@@ -38,9 +38,5 @@ public class MotorPort implements AdministratorConstants{
 			throw new IllegalArgumentException("no such motor port");
 		}
 	}
-	
-	public int getPortId() {
-		return portId;
-	}
 
 }

@@ -65,10 +65,20 @@ public class MainFrame extends JFrame {
 				pep.getEnvironment().addNXT();
 			}
 		});
+		mnEntorno.add(mntmCrearEntornoCon);
 		
 		JMenuItem mntmCargarEntorno = new JMenuItem("Cargar entorno");
+		mntmCargarEntorno.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				EnvUI pep = new EnvUI();
+				desktopPane.add(pep);
+				pep.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
+				pep.setVisible(true);
+				//pep.getEnvironment().addNXT();
+			}
+		});
 		mnEntorno.add(mntmCargarEntorno);
-		mnEntorno.add(mntmCrearEntornoCon);
+		
 		
 		JMenu mnRobotNxt = new JMenu("Robot NXT");
 		menuBar.add(mnRobotNxt);
