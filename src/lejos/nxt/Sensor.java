@@ -49,7 +49,6 @@ public abstract class Sensor extends Part {
 		this.port = port;
 		// Si es el puerto 4 entonces debe voltearse la imagen ya que el sensor es agregado arriba.
 		if (port == SensorPort.S4) {
-			setVertMirror(true);
 			// Se suma o resta la cantidad necesaria para que el sensor pueda ser mostrado correctamente
 			setPosition(new Location(getPosition().x + moreCloser, getPosition().y));
 		} else {

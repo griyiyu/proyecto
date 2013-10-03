@@ -15,7 +15,7 @@ import ch.aplu.jgamegrid.Location;
 public class UltrasonicSensor extends Sensor {
 
 	private static Point collisionCenter = new Point(0, 0);
-	private static int collisionRadius = 9;	
+	private static int collisionRadius = 12;//9;	
 
 	private Part aux;
 	private int ultrasonicValue = 255;
@@ -29,13 +29,19 @@ public class UltrasonicSensor extends Sensor {
 		setCollisionCircle(collisionCenter, collisionRadius);
 		
 		//Se instancia un actor del mismo tamaño del sensor para realizar los calculos auxiliares.
-		aux = new Part(AdministratorConstants.IMAGE_PATH + "UltrasonicSensor.png", port == SensorPort.S1 ? pos1 : (port == SensorPort.S2 ? pos2
-				: pos3));
+		aux = ultrasonicAux();
 		addActorCollisionListener(aux);
 		setCollisionCircle(collisionCenter, collisionRadius);
 
 		aux.hide();
 		environment.addPart(aux);
+	}
+	
+	public Part ultrasonicAux() {
+		return new Part(AdministratorConstants.IMAGE_PATH + "UltrasonicSensor"
+				+ new Integer(port.getPortId()).toString() + ".png",
+				port == SensorPort.S1 ? pos1 : (port == SensorPort.S2 ? pos2
+						: (port == SensorPort.S3 ? pos3 : pos4)));
 	}
 
 	public void act() {
@@ -61,11 +67,12 @@ public class UltrasonicSensor extends Sensor {
 		try {
 			aux.setDirection(this.getDirection());
 			aux.setLocation(this.getLocation());
+			aux.show();
 		} catch (NullPointerException npe) {
-			
+			System.out.println("aux es null!!!!");
 		}
 		
-		aux.show();
+		
 		while (!colliding){
 
 			//Revisa si está colisionando y devuelve la distancia en caso de estar colisionando.
@@ -102,5 +109,22 @@ public class UltrasonicSensor extends Sensor {
 	public int getDistance(){
 		return ultrasonicValue;
 	}
+
+	public Part getAux() {
+		if (aux == null) {
+			//Se instancia un actor del mismo tamaño del sensor para realizar los calculos auxiliares.
+			aux = ultrasonicAux();
+			addActorCollisionListener(aux);
+			aux.hide();
+			getEnvironment().addPart(aux);
+		}
+		return aux;
+	}
+
+	public void setAux(Part aux) {
+		this.aux = aux;
+	}
+	
+	
 	
 }

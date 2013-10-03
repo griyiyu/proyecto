@@ -1,7 +1,6 @@
 package nxt.simulator.UI;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -18,9 +17,9 @@ import javax.swing.border.EmptyBorder;
 
 public class MainFrame extends JFrame {
 
-	private JPanel contentPane;
-	private final JDesktopPane desktopPane = new JDesktopPane();
+	private static final long serialVersionUID = 1L;
 	
+	private final static JDesktopPane desktopPane = new JDesktopPane();
 
 	/**
 	 * Launch the application.
@@ -30,8 +29,9 @@ public class MainFrame extends JFrame {
 			public void run() {
 				try {
 					MainFrame frame = new MainFrame();
-					frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 					frame.setVisible(true);
+					initializeSimulationEnvironment();
+					frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -44,82 +44,49 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		setTitle("Entorno de Simulaci\u00F3n MINDSTORMS");
-		setIconImage(Toolkit.getDefaultToolkit().getImage(MainFrame.class.getResource("/sprites/Brick.png")));
-		
+		setIconImage(Toolkit.getDefaultToolkit().getImage(
+				MainFrame.class.getResource("/sprites/Brick.png")));
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 929, 510);
-		
+
 		JMenuBar menuBar = new JMenuBar();
 		setJMenuBar(menuBar);
-		
-		JMenu mnEntorno = new JMenu("Entorno");
-		menuBar.add(mnEntorno);
-		
-		JMenuItem mntmCrearEntornoCon = new JMenuItem("Crear entorno");
-		mntmCrearEntornoCon.addActionListener(new ActionListener() {
+
+		JMenu mnSimulator = new JMenu("Simulador");
+		menuBar.add(mnSimulator);
+
+		JMenuItem mntmInitializeSimulator = new JMenuItem("Iniciar simulador");
+		mntmInitializeSimulator.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				EnvironmentUI pep = new EnvironmentUI();
-				desktopPane.add(pep);
-				pep.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
-				pep.setVisible(true);
-				pep.getEnvironment().addNXT();
+				initializeSimulationEnvironment();
 			}
 		});
-		mnEntorno.add(mntmCrearEntornoCon);
-		
-		JMenuItem mntmCargarEntorno = new JMenuItem("Cargar entorno");
-		mntmCargarEntorno.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				EnvUI pep = new EnvUI();
-				desktopPane.add(pep);
-				pep.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
-				pep.setVisible(true);
-				//pep.getEnvironment().addNXT();
-			}
-		});
-		mnEntorno.add(mntmCargarEntorno);
-		
-		
-		JMenu mnRobotNxt = new JMenu("Robot NXT");
-		menuBar.add(mnRobotNxt);
-		
-		JMenuItem mntmDefinirPuertosPosicin = new JMenuItem("Definir puertos, posici\u00F3n y direcci\u00F3n");
-		mnRobotNxt.add(mntmDefinirPuertosPosicin);
-		
-		JMenu mnSimulacin = new JMenu("Simulaci\u00F3n");
-		menuBar.add(mnSimulacin);
-		
-		JMenuItem mntmCargarCdigoLejos = new JMenuItem("Cargar c\u00F3digo LEJOS");
-		mnSimulacin.add(mntmCargarCdigoLejos);
-		
-		JMenuItem mntmIniciarSimulacin = new JMenuItem("Iniciar simulaci\u00F3n");
-		mnSimulacin.add(mntmIniciarSimulacin);
-		mntmIniciarSimulacin.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				SimulationUI simulationUI = new SimulationUI();
-				desktopPane.add(simulationUI);
-				simulationUI.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
-				simulationUI.setVisible(true);
-			}
-		});			
-		contentPane = new JPanel();
+		mnSimulator.add(mntmInitializeSimulator);
+
+		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
-		desktopPane.setBackground(UIManager.getColor("InternalFrame.activeTitleBackground"));
-		/*
-		BufferedImage image = null;
-		try {
-			File file = new File("sprites/Todo.jpg");
-			image = ImageIO.read(file);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			System.out.println(e1.getMessage());
-			e1.printStackTrace();
-		}
-		desktopPane.setBorder(new BorderImage(image));
-		*/
-		contentPane.add(desktopPane, BorderLayout.CENTER);	
+		desktopPane.setBackground(UIManager
+				.getColor("InternalFrame.activeTitleBackground"));
+
+		contentPane.add(desktopPane, BorderLayout.CENTER);
+	}
+
+	/**
+	 * Instancia e inicia la ventana que contiene el entorno de simulación y 
+	 * el robot NXT.
+	 */
+	protected static void initializeSimulationEnvironment() {
+		// Crea el entorno de simulación
+		EnvironmentUI simulationEnvironment = new EnvironmentUI();
+		// Se agrega el entorno de simulación al panel
+		desktopPane.add(simulationEnvironment);
+		simulationEnvironment.setLocation(MAXIMIZED_HORIZ, MAXIMIZED_VERT);
+		simulationEnvironment.setVisible(true);
+		// Agrega el robot NXT al entorno de simulación
+		simulationEnvironment.getEnvironment().addNXT();
 	}
 
 }

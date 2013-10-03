@@ -18,7 +18,7 @@ public class ColorSensor extends Sensor {
 
 	
 	public ColorSensor(SensorPort port) {
-		super(port, "LightSensor4", 4);
+		super(port, "LightSensor", 4);
 		getEnvironment().addPart(this);	
 		color = environment.getBackground();
 		red = color.getRed();

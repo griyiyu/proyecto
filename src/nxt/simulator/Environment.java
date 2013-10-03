@@ -3,14 +3,12 @@ package nxt.simulator;
 import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import lejos.nxt.Motor;
 import lejos.nxt.MotorPort;
 import lejos.nxt.Sensor;
-import lejos.nxt.UltrasonicSensor;
 import nxt.simulator.UI.EnvironmentUI;
 import tools.AdministratorConstants;
 import tools.EnvironmentActions;
@@ -18,7 +16,6 @@ import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.GGBackground;
 import ch.aplu.jgamegrid.GGMouse;
 import ch.aplu.jgamegrid.GGMouseListener;
-import ch.aplu.jgamegrid.GGTileMap;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
 
@@ -44,10 +41,6 @@ public abstract class Environment extends GameGrid implements
 		this.environmentAction = environmentAction;
 	}
 
-
-	private final int xMapStart = 0;
-	private final int yMapStart = 0;	
- 
 	private EnvironmentActions environmentAction = EnvironmentActions.ADD;
 	private boolean dragging = false;
 	private boolean addingOrPainting = false;
@@ -63,9 +56,7 @@ public abstract class Environment extends GameGrid implements
 		super(width, high, 1, null, null, isNavigationBar, 60);
 		setTitle("NXT Robot Simulation Environment");
 		setSimulationPeriod(SIMULATION_PERIOD);
-		setBgColor(AdministratorConstants.backgroundColor); // (50, 100, 100) //(42, 85, 32));
-												// //(142, 207, 126));
-		// tm.setPosition(new Point(xMapStart, yMapStart));
+		setBgColor(AdministratorConstants.backgroundColor); 
 		environmentConfiguration = new EnvironmentConfiguration();
 		Sensor.setEnvironment(this);
 
@@ -83,7 +74,7 @@ public abstract class Environment extends GameGrid implements
 		setCellSize(1);
 		setNbVertCells(high); 
 		setNbHorzCells(width); 		
-		setBgColor(new Color(56, 114, 114));
+		setBgColor(AdministratorConstants.backgroundColor);
 		environmentConfiguration = new EnvironmentConfiguration();
 		Sensor.setEnvironment(this);
 	}
@@ -208,42 +199,38 @@ public abstract class Environment extends GameGrid implements
 		return true;		
 	}
 
-	protected void paintCell() {
-		GGBackground bg = getBg();
-	    Color c = getBgColor();
-	    bg.setPaintColor(color);
-	    bg.fillCircle(new Point(500, 250), 150);
-	    bg.setPaintColor(c);
-	    bg.fillCircle(new Point(500, 250), 130);
-	    refresh();
-	}
 	
 	protected void paintCell(int x, int y) {
+		paintCell(x, y, color);
+	}
+	
+
+	protected void paintCell(int x, int y, Color color) {
 		int posTileX = x / 20;
 		int posTileY = y / 20;
 		int posX = posTileX * AdministratorConstants.TILE_WIDTH;
 		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
-		
+		//Se pinta la celda
 		GGBackground bg = getBg();
-	    //Color color = Color.black;
 	    bg.setPaintColor(color);
 	    bg.fillRectangle(new Point(posX, posY), 
 	    		new Point(posX + AdministratorConstants.TILE_WIDTH, posY + AdministratorConstants.TILE_WIDTH));
-	    //Se agrega la localización en la configuración
-	    Location location = new Location(posX, posY);
+	    //Se agrega la localización de la esquina superior izquierda del cuadro pintado en la configuración
+	    Location location = new Location(posTileX, posTileY);
 	    getEnvironmentConfiguration().addColor(location.toString(), color);
-//	    show();
 	    refresh();
 	}
+
 	
 	public void addObstacleInCell(int x, int y) {
 		int posTileX = x / 20;
 		int posTileY = y / 20;
 		int posX = posTileX * AdministratorConstants.TILE_WIDTH;
 		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
-		Location location = new Location(posTileX, posTileY);
+		//Se agrega el obstáculo
 		addObstacle(new Obstacle(), posX, posY);
-		// Se agrega la localizacion a la configuracion
+		//Se agrega la localización de la esquina superior izquierda del obstáculo en la configuración
+		Location location = new Location(posTileX, posTileY);
 		getEnvironmentConfiguration().addObstacle(location.toString());		
 		
 	}
@@ -269,27 +256,12 @@ public abstract class Environment extends GameGrid implements
 	public void setNxt(RobotCar nxt) {
 		this.nxt = nxt;
 	}
-	
-
-	protected void paintCell(int x, int y, Color color) {
-		int posTileX = x / 20;
-		int posTileY = y / 20;
-		int posX = posTileX * AdministratorConstants.TILE_WIDTH;
-		int posY = posTileY * AdministratorConstants.TILE_WIDTH;
 		
-		GGBackground bg = getBg();
-	    //Color color = Color.black;
-	    bg.setPaintColor(color);
-	    bg.fillRectangle(new Point(posX, posY), 
-	    		new Point(posX + AdministratorConstants.TILE_WIDTH, posY + AdministratorConstants.TILE_WIDTH));
-	    //Se agrega la localización en la configuración
-	    Location location = new Location(posX, posY);
-	    getEnvironmentConfiguration().addColor(location.toString(), color);
-	    refresh();
-	}
-	
 	
 	public EnvironmentConfiguration getEnvironmentConfiguration() {
+		if (environmentConfiguration == null) {
+			environmentConfiguration = new EnvironmentConfiguration();
+		}
 		return environmentConfiguration;
 	}
 
@@ -301,7 +273,12 @@ public abstract class Environment extends GameGrid implements
 	public void cleanCell(int x, int y) {
 		removeObstaclesAtLocation(x,y);
 		paintCell(x, y, AdministratorConstants.backgroundColor);
-		
+		int posTileX = x / 20;
+		int posTileY = y / 20;
+		Location location = new Location(posTileX, posTileY);
+		getEnvironmentConfiguration().removeObstacle(location.toString());
+		getEnvironmentConfiguration().removeColor(location.toString());
+		refresh();	
 	}	
 	
 	public void clear() {
@@ -348,23 +325,22 @@ public abstract class Environment extends GameGrid implements
 	}
 	
 	public void refreshEnvironmentConfiguration() {
-		//EnvironmentConfiguration environmentConfiguration = this.getEnvironmentConfiguration();
-		Set<String> obstaclesPositions = environmentConfiguration.getObstacles();
+		Set<String> obstaclesPositions = getEnvironmentConfiguration().getObstacles();
         for (String pos : obstaclesPositions) {
         	String[] strs = pos.subSequence(1, pos.length() -1).toString().split(", ");
-        	int x = new Integer(strs[0]).intValue() * 20;
-        	int y = new Integer(strs[1]).intValue() * 20;
+        	int x = new Integer(strs[0]).intValue() * AdministratorConstants.TILE_WIDTH;
+        	int y = new Integer(strs[1]).intValue() * AdministratorConstants.TILE_WIDTH;
     		addObstacle(new Obstacle(), x, y);
         }
-		Map<String, Color> colorsPositions = environmentConfiguration.getColorsTM();
+		Map<String, Color> colorsPositions = getEnvironmentConfiguration().getColorsTM();
         for (Map.Entry<String, Color> entry : colorsPositions.entrySet()) {
         	String[] strs = entry.getKey().subSequence(1, entry.getKey().length() -1).toString().split(", ");
-        	int x = new Integer(strs[0]).intValue();
-        	int y = new Integer(strs[1]).intValue();
+        	int x = new Integer(strs[0]).intValue() * AdministratorConstants.TILE_WIDTH;
+        	int y = new Integer(strs[1]).intValue() * AdministratorConstants.TILE_WIDTH;
         	paintCell(x, y, entry.getValue());
         }
-        getNxt().moveCar(environmentConfiguration.getPosRobotX(), environmentConfiguration.getPosRobotY(), 
-        		environmentConfiguration.getDirectionRobot());
+        getNxt().moveCar(getEnvironmentConfiguration().getPosRobotX(), getEnvironmentConfiguration().getPosRobotY(), 
+        		getEnvironmentConfiguration().getDirectionRobot());
         refresh();
 	}	
 

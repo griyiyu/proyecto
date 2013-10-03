@@ -1,6 +1,5 @@
 package nxt.simulator.persistance;
 
-import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,11 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.HashMap;
 
-import ch.aplu.jgamegrid.Location;
-
-import nxt.simulator.Environment;
 import nxt.simulator.EnvironmentConfiguration;
 
 public class EnvironmentConfigurationDao {

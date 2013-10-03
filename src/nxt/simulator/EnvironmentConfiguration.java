@@ -2,16 +2,13 @@ package nxt.simulator;
 
 import java.awt.Color;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import ch.aplu.jgamegrid.Location;
 
 public class EnvironmentConfiguration implements Serializable{
 
+	private static final long serialVersionUID = 1L;
 	protected Set<String> obstacles;
 	protected HashMap<String, Color> colorsTM;
 	protected int posRobotX;
@@ -71,12 +68,16 @@ public class EnvironmentConfiguration implements Serializable{
 		this.directionRobot = directionRobot;
 	}
 	
-	public void removeObstacle(String value) {
-		obstacles.remove(value);
+	public void removeObstacle(String location) {
+		obstacles.remove(location);
 	}
 	
 	public void removeAllObstacles() {
 		obstacles = new HashSet<String>();
+	}
+	
+	public void removeColor(String location) {
+		colorsTM.remove(location);
 	}
 	
 	public void removeAllColors() {
