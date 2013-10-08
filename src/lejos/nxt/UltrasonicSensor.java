@@ -30,11 +30,11 @@ public class UltrasonicSensor extends Sensor {
 		
 		//Se instancia un actor del mismo tamaño del sensor para realizar los calculos auxiliares.
 		aux = ultrasonicAux();
-		addActorCollisionListener(aux);
+		addActorCollisionListener(getAux());
 		setCollisionCircle(collisionCenter, collisionRadius);
 
-		aux.hide();
-		environment.addPart(aux);
+		getAux().hide();
+		environment.addPart(getAux());
 	}
 	
 	public Part ultrasonicAux() {
@@ -65,9 +65,9 @@ public class UltrasonicSensor extends Sensor {
 		int traveledDistance = 0;
 		
 		try {
-			aux.setDirection(this.getDirection());
-			aux.setLocation(this.getLocation());
-			aux.show();
+			getAux().setDirection(this.getDirection());
+			getAux().setLocation(this.getLocation());
+			getAux().show();
 		} catch (NullPointerException npe) {
 			System.out.println("aux es null!!!!");
 		}
@@ -78,7 +78,7 @@ public class UltrasonicSensor extends Sensor {
 			//Revisa si está colisionando y devuelve la distancia en caso de estar colisionando.
 			for (Actor a : gameGrid.getActors(Obstacle.class)) {
 //				if (gameGrid.isActorColliding(a, aux) || !(aux.isMoveValid())) {
-				if ((traveledDistance >= 200) || gameGrid.isActorColliding(a, aux) || !(aux.isMoveValid())) {
+				if ((traveledDistance >= 200) || gameGrid.isActorColliding(a, getAux()) || !(getAux().isMoveValid())) {
 					distance = (int)Math.round((Math.sqrt(Math.pow((xNew-xInit), 2)+ Math.pow((yNew-yInit), 2))));
 					colliding = true;
 					//return (int)Math.round((Math.sqrt(Math.pow((xNew-xInit), 2)+ Math.pow((yNew-yInit), 2))));
@@ -93,9 +93,9 @@ public class UltrasonicSensor extends Sensor {
 			int xPosition = (int)Math.round(xNew);
 			int yPosition = (int)Math.round(yNew);
 			// Se asigna la nueva posición a la parte auxiliar para el calculo de distancia.
-			aux.setLocation(new Location(xPosition,yPosition));
+			getAux().setLocation(new Location(xPosition,yPosition));
 		}	
-		aux.hide();
+		getAux().hide();
 		//5 pixels = 1 cm.
 		distance /= 5;
 //		return distance >= 170 ? 255 : distance;
