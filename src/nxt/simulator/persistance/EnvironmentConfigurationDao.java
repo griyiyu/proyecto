@@ -19,7 +19,6 @@ public class EnvironmentConfigurationDao {
 	        oos = new ObjectOutputStream(fileOutputStream);
 	        oos.writeObject(environment);
 	        oos.close();
-	        System.out.println("exito");
         } catch (FileNotFoundException e) {
 	        e.printStackTrace();
         } catch (IOException e) {

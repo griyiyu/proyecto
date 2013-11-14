@@ -15,6 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
+import tools.AdministratorConstants;
+
 public class MainFrame extends JFrame {
 
 	private static final long serialVersionUID = 1L;
@@ -45,8 +47,7 @@ public class MainFrame extends JFrame {
 	public MainFrame() {
 		setTitle("Entorno de Simulaci\u00F3n MINDSTORMS");
 		setIconImage(Toolkit.getDefaultToolkit().getImage(
-				//MainFrame.class.getResource("/sprites/Brick.png")));
-				MainFrame.class.getResource("/sprites/RobotCar.png")));
+				MainFrame.class.getResource("/" + AdministratorConstants.IMAGE_PATH + "RobotCar.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 929, 510);
 

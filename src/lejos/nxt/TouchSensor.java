@@ -72,7 +72,6 @@ public class TouchSensor extends Sensor {
 	@Override
 	public int collide(Actor actor, Location location) {
 		if (actor instanceof TouchSensor) {
-			System.out.println("se activa el sensor");
 			setTouchValue(true);
 		}
 		return 1;

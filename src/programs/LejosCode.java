@@ -5,15 +5,15 @@ import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
 import lejos.nxt.TouchSensor;
 import lejos.nxt.UltrasonicSensor;
-import tools.AdministratorConstants;
+import lejos.robotics.Color;
 
 public class LejosCode {
 	
 	public LejosCode() throws InterruptedException {
-//		lineaRoja();
+		lineaRoja();
 //		chocador();
 //		esquivar();	
-		seguirUnCuadrado();
+//		seguirUnCuadrado();
 //		new SimEx1();
 //		new SimEx2();
 //		new SimEx3();
@@ -29,7 +29,8 @@ public class LejosCode {
 		while (true) {
 			Motor.A.forward();
 			Motor.B.forward();
-			if (AdministratorConstants.RED == cs.getColor()) {
+			if (Color.RED == cs.getColor()) {
+			//if (Color.RED == cs.getColor()) {
 				Motor.B.stop();
 				Thread.sleep(7000);
 			}
@@ -81,10 +82,10 @@ public class LejosCode {
 		Motor.B.setSpeed(500);
 
 		while (true) {
-			while (AdministratorConstants.BLACK == cs.getColor()) {
+			while (Color.BLACK == cs.getColor()) {
 				Motor.A.forward();
 				Motor.B.forward();
-				// if (AdministratorConstants.RED == cs.getColor()) {
+				// if (Color.RED == cs.getColor()) {
 				// Motor.B.stop();
 				// Thread.sleep(7000);
 			}

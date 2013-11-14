@@ -3,7 +3,7 @@ package programs;
 import lejos.nxt.ColorSensor;
 import lejos.nxt.Motor;
 import lejos.nxt.SensorPort;
-import tools.AdministratorConstants;
+import lejos.robotics.Color;
 
 /**
  * Ejemplo de funcionamiento del color sensor.
@@ -23,7 +23,7 @@ public class SimEx4 {
 //			System.out.println("Red: " + cs.getColor().getRed());
 //			System.out.println("Green: " + cs.getColor().getGreen());
 //			System.out.println("Blue: " + cs.getColor().getBlue());
-			if (AdministratorConstants.BLACK == cs.getColor()) {
+			if (Color.BLACK == cs.getColor()) {
 				Motor.A.setSpeed(200);
 				Motor.B.setSpeed(200);
 				Motor.A.backward();

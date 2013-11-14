@@ -69,7 +69,7 @@ public class UltrasonicSensor extends Sensor {
 			getAux().setLocation(this.getLocation());
 			getAux().show();
 		} catch (NullPointerException npe) {
-			System.out.println("aux es null!!!!");
+			
 		}
 		
 		

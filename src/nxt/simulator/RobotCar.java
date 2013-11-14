@@ -94,7 +94,6 @@ public class RobotCar extends Actor implements AdministratorConstants {
 				// Mueve el robot en la dirección y posición calculada
 				moveCar(xPosition, yPosition, tita);
 			}
-			//System.out.println(this.getY());
 		}
 	}
 

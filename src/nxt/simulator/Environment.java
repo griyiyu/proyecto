@@ -31,7 +31,7 @@ public abstract class Environment extends GameGrid implements
 	protected static boolean isNavigationBar = false;
 	protected RobotCar nxt = new RobotCar(startLocation, "Brick.png");
 	protected EnvironmentConfiguration environmentConfiguration;
-	protected static String obstacleImage = "sprites/brickWhite.png";
+	protected static String obstacleImage = AdministratorConstants.IMAGE_PATH + "brickWhite.png";
 
 	public EnvironmentActions getEnvironmentAction() {
 		return environmentAction;
@@ -45,7 +45,7 @@ public abstract class Environment extends GameGrid implements
 	private boolean dragging = false;
 	private boolean addingOrPainting = false;
 	
-	protected Color color = new Color(YELLOW);
+	protected Color color = new Color(0);
 	
 	private long cicleTotalTime = System.currentTimeMillis();
 	private long cicleStartTime = System.currentTimeMillis();
@@ -189,11 +189,13 @@ public abstract class Environment extends GameGrid implements
 				dragging = false;
 				addingOrPainting = false;
 				break;
+			/*
 			case GGMouse.rPress:
 				if (clickOnRobot) {
 					rotateLeftNXT(15);
 				}
 				break;
+				*/
 			}
 		}	
 		return true;		
@@ -242,12 +244,19 @@ public abstract class Environment extends GameGrid implements
 		refresh();
 	}
 
-	protected void rotateLeftNXT(double angle) {
-		double newDirection = (getNxt().getDirection() + angle) % 360;
+	public void rotateLeftNXT(double angle) {
+		double newDirection = getNxt().getDirection() - angle;
 		getNxt().moveCar(getNxt().getX(), getNxt().getY(), newDirection);
 		getEnvironmentConfiguration().setDirectionRobot(newDirection);		
 		refresh();		
-	}	
+	}
+	
+	public void rotateRightNXT(double angle) {		
+		double newDirection = getNxt().getDirection() + angle;
+		getNxt().moveCar(getNxt().getX(), getNxt().getY(), newDirection);
+		getEnvironmentConfiguration().setDirectionRobot(newDirection);		
+		refresh();		
+	}		
 	
 	public RobotCar getNxt() {
 		return nxt;
