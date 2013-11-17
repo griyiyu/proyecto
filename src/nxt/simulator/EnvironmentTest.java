@@ -6,7 +6,9 @@ import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.Location;
 
 public class EnvironmentTest extends Environment {
-	
+
+	private static final long serialVersionUID = -1719751487389340621L;
+
 	public EnvironmentTest()
 	{
 		super();

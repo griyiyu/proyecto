@@ -1,3 +1,8 @@
+/**
+ * Clase de la ventana que contendrá el entorno de simulación
+ * 
+ * @author Griselda Arias
+ */
 package nxt.simulator.UI;
 
 import java.awt.BorderLayout;
@@ -53,13 +58,30 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	/**
 	 * Botones para rotar el robot
 	 */
-	JButton btnMoveLeft = new JButton();;
-	JButton btnMoveRight = new JButton();;
+	protected JButton btnMoveLeft = new JButton();
+	protected JButton btnMoveRight = new JButton();
 	
 	/**
-	 * Create the frame.
+	 * Botones para guardar el ambiente
 	 */
-	public EnvironmentUI() {
+	protected JButton btnSave = new JButton("Guardar");
+	protected JButton btnLoad = new JButton("Cargar");
+	protected JButton btnClear = new JButton("Limpiar");
+	
+	/**
+	 * Boton para iniciar la simulacion
+	 */
+	JButton btnSimulate = new JButton("Simular");
+	
+	/**
+	 * Boton para detener la simulacion
+	 */
+	JButton btnStop = new JButton("Detener");
+	
+	/**
+	 * Crea la ventana que contendrá el entorno de simulación
+	 */
+	public EnvironmentUI(final String lejosClassName) {
 		
 		setMinimumSize(new Dimension(400, 600));
 		setClosable(true);
@@ -102,34 +124,29 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		JPanel simulationPanel = new JPanel();
 		simulationPanel.setBorder(new TitledBorder("Simulación del robot NXT"));
 		simulationPanel.setLayout(experimentLayout);
-		JButton btnSimulate = new JButton("Simular");
 		btnSimulate.setToolTipText("Comienza la simulaci\u00F3n.");
-		JButton btnStop = new JButton("Detener");
 		btnStop.setToolTipText("Detiene la simulaci\u00F3n.");
 		// Se agregan los botones para iniciar y detener la simulación al panel
 		simulationPanel.add(btnSimulate);		
 		simulationPanel.add(btnStop);	
 		
 		// Se crea el panel inferior con los botones
-		JPanel southPanel = new JPanel();
-		southPanel.setBorder(new TitledBorder("Administración del ambiente"));
-		southPanel.setLayout(experimentLayout);
-		JButton btnSave = new JButton("Guardar");
+		JPanel envAdmPanel = new JPanel();
+		envAdmPanel.setBorder(new TitledBorder("Administración del ambiente"));
+		envAdmPanel.setLayout(experimentLayout);
 		btnSave.setToolTipText("Guarda el ambiente creado.");
-		JButton btnLoad = new JButton("Cargar");
 		btnLoad.setToolTipText("Carga en pantalla un ambiente guardado previamente.");
-		JButton btnClear = new JButton("Limpiar");
 		btnClear.setToolTipText("Limpia el ambiente en pantalla.");
-		southPanel.add(btnSave);
-		southPanel.add(btnLoad);
-		southPanel.add(btnClear);
+		envAdmPanel.add(btnSave);
+		envAdmPanel.add(btnLoad);
+		envAdmPanel.add(btnClear);
 
 		// Se crea el panel izquierdo con las opciones de configuración y adm del ambiente 
 		// y config y simulacion del robot
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
 		leftPanel.add(envConfigPanel);
-		leftPanel.add(southPanel);
+		leftPanel.add(envAdmPanel);
 		leftPanel.add(nxtConfigPanel);
 		leftPanel.add(simulationPanel);
 
@@ -184,17 +201,19 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		});
 		btnSimulate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				environment.setEnvironmentAction(EnvironmentActions.RUN);				
+				disableOptions();
+				environment.setEnvironmentAction(EnvironmentActions.RUN);		
 				environment.doRun();
 				if (job == null) {
-					job = new Thread(new Job((EnvironmentTest)environment));
+					job = new Thread(new Job(lejosClassName, getUI()));
 					job.start();
 				}
 				
 			}
 		});
 		btnStop.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {				
+			public void actionPerformed(ActionEvent arg0) {
+				enableOptions();
 				environment.doPause();
 				String actionCommand = group.getSelection().getActionCommand();
 				setEnvironmentAction(actionCommand);
@@ -209,6 +228,34 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		pack();
 	}
 
+	/**
+	 * Inhabilitan los botones
+	 */
+	private void disableOptions() {
+		btnSave.setEnabled(false);
+		btnLoad.setEnabled(false);
+		btnClear.setEnabled(false);	
+		btnSimulate.setEnabled(false);
+	}
+	
+	/**
+	 * Se habilitan los botones
+	 */
+	private void enableOptions() {
+		btnSave.setEnabled(true);
+		btnLoad.setEnabled(true);
+		btnClear.setEnabled(true);
+		btnSimulate.setEnabled(true);
+	}
+	
+	/**
+	 * Crea el panel de configuración del ambiente
+	 * 
+	 * @param group
+	 *            Grupo de radio buttons con las opciones de configuración del
+	 *            ambiente
+	 * @return Panel con las opciones de configuración del ambiente
+	 */
 	private JPanel createEnvConfigPanel(final ButtonGroup group) {
 		// Creación del panel de config del ambiente
 		JPanel panel = new JPanel();
@@ -253,6 +300,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		colorsList.setMaximumSize(new Dimension(90,20));
 		colorsList.addActionListener(this);	
 		
+		// Se defin el layout para agregar las diferentes opciones al panel
 		GroupLayout layout = new GroupLayout(panel); 
 		ParallelGroup parallelGroupA= layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING); 
 				
@@ -261,17 +309,17 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		
 		SequentialGroup sequentialGroupFila1= layout.createSequentialGroup(); /* contiene los componentes de la primera fila */ 
 		sequentialGroupFila1.addComponent(addButton, 20, 20, 130); 
-		sequentialGroupFila1.addGap(20); /* espacio entre boton1 y boton2 */ 
+		sequentialGroupFila1.addGap(20); /* espacio entre filas */ 
 		sequentialGroupFila1.addComponent(lbl2, 50, 50, 50); 
 
 		SequentialGroup sequentialGroupFila2= layout.createSequentialGroup(); /* contiene los componentes de la segunda fila */ 
 		sequentialGroupFila2.addComponent(paintButton, 20, 20, 130); 
-		sequentialGroupFila2.addGap(20); /* espacio entre boton3 y boton4 */ 
+		sequentialGroupFila2.addGap(20); /* espacio entre filas */ 
 		sequentialGroupFila2.addComponent(colorsList, 50, 50, 80); 
 		
-		SequentialGroup sequentialGroupFila3= layout.createSequentialGroup(); /* contiene los componentes de la segunda fila */ 
+		SequentialGroup sequentialGroupFila3= layout.createSequentialGroup(); /* contiene los componentes de la tercer fila */ 
 		sequentialGroupFila3.addComponent(cleanButton, 20, 20, 130); 
-		sequentialGroupFila3.addGap(20); /* espacio entre boton5 y boton6 */ 
+		sequentialGroupFila3.addGap(20); /* espacio entre filas */ 
 		sequentialGroupFila3.addComponent(lbl6, 50, 50, 50); 
 
 		ParallelGroup parallelGroupAuxiliar1= layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING); 
@@ -291,16 +339,16 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
 		SequentialGroup sequentialGroupColumna1= layout.createSequentialGroup(); /* contiene los componentes de la primera columna */ 
 		sequentialGroupColumna1.addComponent(addButton,20,20,130); 
-		sequentialGroupColumna1.addGap(10); /* espacio entre boton1 y boton3 */ 
+		sequentialGroupColumna1.addGap(10); /* espacio entre columnas */ 
 		sequentialGroupColumna1.addComponent(paintButton,20,20,130); 
-		sequentialGroupColumna1.addGap(10); /* espacio entre boton1 y boton3 */ 
+		sequentialGroupColumna1.addGap(10); /* espacio entre columnas */ 
 		sequentialGroupColumna1.addComponent(cleanButton,20,20,130); 
 
 		SequentialGroup sequentialGroupColumna2= layout.createSequentialGroup(); /* contiene los componentes de la segunda columna */ 
 		sequentialGroupColumna2.addComponent(lbl2,50,50,50); 
-		sequentialGroupColumna2.addGap(10); /* espacio entre boton2 y boton4 */ 
+		sequentialGroupColumna2.addGap(10); /* espacio entre columnas */ 
 		sequentialGroupColumna2.addComponent(colorsList,50,50,80); 
-		sequentialGroupColumna2.addGap(10); /* espacio entre boton2 y boton4 */ 
+		sequentialGroupColumna2.addGap(10); /* espacio entre columnas */ 
 		sequentialGroupColumna2.addComponent(lbl6,50,50,50); 
 
 		ParallelGroup parallelGroupAuxiliar2= layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING); 
@@ -326,7 +374,10 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		String actionCommand = e.getActionCommand();
 		setEnvironmentAction(actionCommand);
 	}
-
+	
+	/**
+	 * @return Ambiente de simulación
+	 */
 	public Environment getEnvironment() {
 		return environment;
 	}

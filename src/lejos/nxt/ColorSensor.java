@@ -45,7 +45,7 @@ public class ColorSensor extends Sensor {
 	 * los colores están dados por la clase lejos.robotics.Color
 	 * Negro(7), Azul(2), Verde(1), Amarillo(3), Rojo(0), Blanco(6);
 	 */
-	public int getColor() {
+	public int getColorID() {
 		int blank = 0;
 
 		if (red > blue && red > green) {

@@ -13,7 +13,7 @@ public abstract class Sensor extends Part {
 	protected static final Location pos1 = new Location(40, 10);
 	protected static final Location pos2 = new Location(40, 0);
 	protected static final Location pos3 = new Location(40, -10);
-	protected static final Location pos4 = new Location(-40, 10);
+	protected static final Location pos4 = new Location(-40, 0);
 
 	protected SensorPort port;
 	

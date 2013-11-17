@@ -22,7 +22,7 @@ import ch.aplu.jgamegrid.Location;
 public abstract class Environment extends GameGrid implements
 		AdministratorConstants, GGMouseListener {
 
-	//private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -8986210948877680288L;
 	// Cuadro de 2m x 1.2m (1 pixel equivale a 2 mm)
 	protected static int width = 1000;
 	protected static int high = 600;
