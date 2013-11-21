@@ -62,6 +62,16 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	protected JButton btnMoveRight = new JButton();
 	
 	/**
+	 * Botones para configurar el ambiente
+	 */
+	protected JRadioButton addButton = new JRadioButton("Agregar obstáculo");
+	protected JRadioButton cleanButton = new JRadioButton("Borrar");
+	protected JRadioButton paintButton = new JRadioButton("Pintar fondo");
+	// Combobox para la selección de colores
+	protected JComboBox<EnvironmentColors> colorsList = new JComboBox<EnvironmentColors>(EnvironmentColors.values());
+	
+	
+	/**
 	 * Botones para guardar el ambiente
 	 */
 	protected JButton btnSave = new JButton("Guardar");
@@ -229,23 +239,35 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	}
 
 	/**
-	 * Inhabilitan los botones
+	 * Inhabilitan los botones y opciones
 	 */
 	private void disableOptions() {
 		btnSave.setEnabled(false);
 		btnLoad.setEnabled(false);
 		btnClear.setEnabled(false);	
 		btnSimulate.setEnabled(false);
+		btnMoveLeft.setEnabled(false);
+		btnMoveRight.setEnabled(false);
+		addButton.setEnabled(false);
+		paintButton.setEnabled(false);
+		cleanButton.setEnabled(false);
+		colorsList.setEnabled(false);
 	}
 	
 	/**
-	 * Se habilitan los botones
+	 * Se habilitan los botones y opciones
 	 */
 	private void enableOptions() {
 		btnSave.setEnabled(true);
 		btnLoad.setEnabled(true);
 		btnClear.setEnabled(true);
 		btnSimulate.setEnabled(true);
+		btnMoveLeft.setEnabled(true);
+		btnMoveRight.setEnabled(true);
+		addButton.setEnabled(true);
+		paintButton.setEnabled(true);
+		cleanButton.setEnabled(true);
+		colorsList.setEnabled(true);
 	}
 	
 	/**
@@ -260,20 +282,17 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		// Creación del panel de config del ambiente
 		JPanel panel = new JPanel();
 		panel.setBorder(new TitledBorder("Configuración del ambiente"));		
-		// Opción de agregar
-		JRadioButton addButton = new JRadioButton("Agregar obstáculo");
+		// Opción de agregar		
 		addButton.setToolTipText("Agrega un obst\u00E1culo haciendo click con el mouse en el ambiente.");
 		addButton.setMnemonic(KeyEvent.VK_A);
 		addButton.setActionCommand(EnvironmentActions.ADD.getCode().toString());
 		addButton.setSelected(true);
-		// Opción de pintar
-		JRadioButton paintButton = new JRadioButton("Pintar fondo");
+		// Opción de pintar		
 		paintButton.setToolTipText("Pinta el fondo del color seleccionado en el combo haciendo click con el mouse en el ambiente.");
 		paintButton.setMnemonic(KeyEvent.VK_P);
 		paintButton.setActionCommand(EnvironmentActions.PAINT.getCode()
 				.toString());
 		// Opción de limpiar
-		JRadioButton cleanButton = new JRadioButton("Borrar");
 		cleanButton.setToolTipText("Borra el obst\u00E1culo o el fondo haciendo click con el mouse en el obst\u00E1culo o fondo pintado.");
 		cleanButton.setMnemonic(KeyEvent.VK_L);
 		cleanButton.setActionCommand(EnvironmentActions.CLEAN.getCode()
@@ -286,8 +305,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		addButton.addActionListener(this);
 		paintButton.addActionListener(this);
 		cleanButton.addActionListener(this);		
-		//Combobox de colores
-		final JComboBox colorsList = new JComboBox(EnvironmentColors.values());
+		//Combobox de colores		
 		colorsList.setToolTipText("Selecci\u00F3n del color con el cual se desea pintar el fondo del ambiente.");
 		colorsList.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent arg0) {
