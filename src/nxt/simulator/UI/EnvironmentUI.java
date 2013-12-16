@@ -31,11 +31,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 
-import nxt.simulator.Environment;
+import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentPersistance;
 import nxt.simulator.EnvironmentTest;
 import nxt.simulator.Job;
-import nxt.simulator.persistance.EnvironmentConfigurationDao;
+import nxt.simulator.persistance.EnvironmentPersistanceDao;
 import tools.AdministratorConstants;
 import tools.EnvironmentActions;
 import tools.EnvironmentColors;
@@ -48,7 +48,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	/**
 	 * Entorno de simulación que contiene los obstáculos, el robot y los sensores
 	 */
-	protected Environment environment;
+	protected EnvironmentConfiguration environment;
 	
 	/**
 	 * Código lejos con el cual se moverá el robot
@@ -182,7 +182,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				if (retval == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
 					EnvironmentPersistance environmentConfiguration = environment.getEnvironmentConfiguration();
-					EnvironmentConfigurationDao environmentConfigurationDao = new EnvironmentConfigurationDao();
+					EnvironmentPersistanceDao environmentConfigurationDao = new EnvironmentPersistanceDao();
 					environmentConfigurationDao.saveEnvironment(environmentConfiguration, file);
 								
 					
@@ -197,7 +197,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				if (retval == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
 					environment.clear();
-					EnvironmentConfigurationDao environmentConfigurationDao = new EnvironmentConfigurationDao();
+					EnvironmentPersistanceDao environmentConfigurationDao = new EnvironmentPersistanceDao();
 					EnvironmentPersistance aux = environmentConfigurationDao.getEnvironment(file);
 					environment.setEnvironmentConfiguration(aux);
 					environment.refreshEnvironmentConfiguration();
@@ -397,7 +397,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 	/**
 	 * @return Ambiente de simulación
 	 */
-	public Environment getEnvironment() {
+	public EnvironmentConfiguration getEnvironment() {
 		return environment;
 	}
 	

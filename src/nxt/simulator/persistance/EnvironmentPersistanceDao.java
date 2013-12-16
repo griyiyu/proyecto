@@ -10,7 +10,7 @@ import java.io.ObjectOutputStream;
 
 import nxt.simulator.EnvironmentPersistance;
 
-public class EnvironmentConfigurationDao {
+public class EnvironmentPersistanceDao {
 	
 	public void saveEnvironment(EnvironmentPersistance environment, File file) {
 		ObjectOutputStream oos;

@@ -19,7 +19,7 @@ import ch.aplu.jgamegrid.GGMouseListener;
 import ch.aplu.jgamegrid.GameGrid;
 import ch.aplu.jgamegrid.Location;
 
-public abstract class Environment extends GameGrid implements
+public abstract class EnvironmentConfiguration extends GameGrid implements
 		AdministratorConstants, GGMouseListener {
 
 	private static final long serialVersionUID = -8986210948877680288L;
@@ -52,7 +52,7 @@ public abstract class Environment extends GameGrid implements
 	
 	protected EnvironmentUI environmentUI;		
 
-	public Environment(Location startLocation, double startDirection) {
+	public EnvironmentConfiguration(Location startLocation, double startDirection) {
 		super(width, high, 1, null, null, isNavigationBar, 60);
 		setTitle("NXT Robot Simulation Environment");
 		setSimulationPeriod(SIMULATION_PERIOD);
@@ -67,7 +67,7 @@ public abstract class Environment extends GameGrid implements
 		show();
 	}
 
-	public Environment() {
+	public EnvironmentConfiguration() {
 		super();
 		setCellSize(1);
 		setNbVertCells(high); 
