@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-public class EnvironmentConfiguration implements Serializable{
+public class EnvironmentPersistance implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	protected Set<String> obstacles;
@@ -15,7 +15,7 @@ public class EnvironmentConfiguration implements Serializable{
 	protected int posRobotY;
 	double directionRobot;
 
-	EnvironmentConfiguration() {
+	EnvironmentPersistance() {
 		obstacles = new HashSet<String>();
 		colorsTM = new HashMap<String, Color>();
 	}
