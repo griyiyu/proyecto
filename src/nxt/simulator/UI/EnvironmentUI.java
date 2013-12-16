@@ -33,7 +33,7 @@ import javax.swing.border.TitledBorder;
 
 import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.EnvironmentPersistance;
-import nxt.simulator.EnvironmentTest;
+import nxt.simulator.Environment;
 import nxt.simulator.Job;
 import nxt.simulator.persistance.EnvironmentPersistanceDao;
 import tools.AdministratorConstants;
@@ -102,7 +102,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 
 		// Se crea el panel central y el environment
 		JPanel centerPanel = new JPanel();
-		environment = new EnvironmentTest(this);
+		environment = new Environment(this);
 		environment.addMouseListener(environment, GGMouse.lClick
 				| GGMouse.lDrag | GGMouse.lPress | GGMouse.lRelease);
 //				| GGMouse.rPress);

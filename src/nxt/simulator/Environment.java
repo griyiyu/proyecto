@@ -5,21 +5,21 @@ import nxt.simulator.UI.EnvironmentUI;
 import ch.aplu.jgamegrid.Actor;
 import ch.aplu.jgamegrid.Location;
 
-public class EnvironmentTest extends EnvironmentConfiguration {
+public class Environment extends EnvironmentConfiguration {
 
 	private static final long serialVersionUID = -1719751487389340621L;
 
-	public EnvironmentTest()
+	public Environment()
 	{
 		super();
 	}
 	
-	public EnvironmentTest(EnvironmentUI ui) {
+	public Environment(EnvironmentUI ui) {
 		super();
 		environmentUI = ui;
 	}		
 	
-	public EnvironmentTest(Location startLocation, double startDirection)
+	public Environment(Location startLocation, double startDirection)
 	{
 		super(startLocation, startDirection);	
 	}
