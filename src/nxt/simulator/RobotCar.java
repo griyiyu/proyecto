@@ -13,17 +13,17 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	/**
 	 * Centro de colisión del robot.
 	 */
-	protected static Point collisionCenter = new Point(0,0);//(-13, 0);
+	protected static Point collisionCenter = new Point(0,0);
 	
 	/**
 	 * Radio de colisión del robot.
 	 */
-	protected static int collisionRadius = 30;//18;
+	protected static int collisionRadius = 30;
 
 	/**
 	 * Factor de corrección por el rosamiento en el suelo etc.
 	 */
-	protected static final double FACTOR_WHEEL = -0.3;//-0.3;
+	protected static final double FACTOR_WHEEL = -0.3;
 	
 	
 	/**
@@ -46,13 +46,8 @@ public class RobotCar extends Actor implements AdministratorConstants {
 		
 	
 	@Override
-	public synchronized void act() {//move() {
-		
-		// Se actualizan los valores de los sensores. 
-//		for (Actor a : gameGrid.getActors(Sensor.class)) {
-//			((Sensor) a).detect();
-//		}		
-		
+	public synchronized void act() {
+			
 		int modeA = Motor.A.getMode();
 		int modeB = Motor.B.getMode();
 		// Si los dos motores estan detenidos no se mueve el robot
@@ -163,16 +158,6 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			Part p = (Part) actor; 
 			p.setDirection(tita);
 			p.setLocation(getPartLocation(p));
-			/*
-			try {
-				Sensor sensor = (Sensor) p;
-				if (sensor.getSensorPor() == SensorPort.S4) {
-					p.setVertMirror(true);
-				}
-			} catch (ClassCastException cce) {
-				continue;
-			}
-			*/
 		}
 	}
 	
