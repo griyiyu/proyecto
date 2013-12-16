@@ -30,7 +30,7 @@ public abstract class Environment extends GameGrid implements
 	protected static double startDirection = START_DIRECTION;
 	protected static boolean isNavigationBar = false;
 	protected RobotCar nxt = new RobotCar(startLocation, "Brick.png");
-	protected EnvironmentConfiguration environmentConfiguration;
+	protected EnvironmentPersistance environmentConfiguration;
 	protected static String obstacleImage = AdministratorConstants.IMAGE_PATH + "brickWhite.png";
 
 	public EnvironmentActions getEnvironmentAction() {
@@ -57,7 +57,7 @@ public abstract class Environment extends GameGrid implements
 		setTitle("NXT Robot Simulation Environment");
 		setSimulationPeriod(SIMULATION_PERIOD);
 		setBgColor(AdministratorConstants.backgroundColor); 
-		environmentConfiguration = new EnvironmentConfiguration();
+		environmentConfiguration = new EnvironmentPersistance();
 		Sensor.setEnvironment(this);
 
 		addActor(nxt, startLocation, startDirection);
@@ -69,13 +69,11 @@ public abstract class Environment extends GameGrid implements
 
 	public Environment() {
 		super();
-//		setCellSize(20);
-//		setGridColor(Color.red);
 		setCellSize(1);
 		setNbVertCells(high); 
 		setNbHorzCells(width); 		
 		setBgColor(AdministratorConstants.backgroundColor);
-		environmentConfiguration = new EnvironmentConfiguration();
+		environmentConfiguration = new EnvironmentPersistance();
 		Sensor.setEnvironment(this);
 	}
 
@@ -189,13 +187,6 @@ public abstract class Environment extends GameGrid implements
 				dragging = false;
 				addingOrPainting = false;
 				break;
-			/*
-			case GGMouse.rPress:
-				if (clickOnRobot) {
-					rotateLeftNXT(15);
-				}
-				break;
-				*/
 			}
 		}	
 		return true;		
@@ -267,15 +258,15 @@ public abstract class Environment extends GameGrid implements
 	}
 		
 	
-	public EnvironmentConfiguration getEnvironmentConfiguration() {
+	public EnvironmentPersistance getEnvironmentConfiguration() {
 		if (environmentConfiguration == null) {
-			environmentConfiguration = new EnvironmentConfiguration();
+			environmentConfiguration = new EnvironmentPersistance();
 		}
 		return environmentConfiguration;
 	}
 
 	public void setEnvironmentConfiguration(
-			EnvironmentConfiguration environmentConfiguration) {
+			EnvironmentPersistance environmentConfiguration) {
 		this.environmentConfiguration = environmentConfiguration;
 	}
 	
@@ -352,7 +343,4 @@ public abstract class Environment extends GameGrid implements
         		getEnvironmentConfiguration().getDirectionRobot());
         refresh();
 	}	
-
-	
-
 }

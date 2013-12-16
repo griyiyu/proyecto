@@ -32,7 +32,7 @@ import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 
 import nxt.simulator.Environment;
-import nxt.simulator.EnvironmentConfiguration;
+import nxt.simulator.EnvironmentPersistance;
 import nxt.simulator.EnvironmentTest;
 import nxt.simulator.Job;
 import nxt.simulator.persistance.EnvironmentConfigurationDao;
@@ -181,7 +181,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				int retval = jFileChooser.showSaveDialog(EnvironmentUI.this);
 				if (retval == JFileChooser.APPROVE_OPTION) {
 					File file = jFileChooser.getSelectedFile();
-					EnvironmentConfiguration environmentConfiguration = environment.getEnvironmentConfiguration();
+					EnvironmentPersistance environmentConfiguration = environment.getEnvironmentConfiguration();
 					EnvironmentConfigurationDao environmentConfigurationDao = new EnvironmentConfigurationDao();
 					environmentConfigurationDao.saveEnvironment(environmentConfiguration, file);
 								
@@ -198,7 +198,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 					File file = jFileChooser.getSelectedFile();
 					environment.clear();
 					EnvironmentConfigurationDao environmentConfigurationDao = new EnvironmentConfigurationDao();
-					EnvironmentConfiguration aux = environmentConfigurationDao.getEnvironment(file);
+					EnvironmentPersistance aux = environmentConfigurationDao.getEnvironment(file);
 					environment.setEnvironmentConfiguration(aux);
 					environment.refreshEnvironmentConfiguration();
 				}
@@ -227,6 +227,7 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 				environment.doPause();
 				String actionCommand = group.getSelection().getActionCommand();
 				setEnvironmentAction(actionCommand);
+				job.interrupt();
 				job = null;				
 			}
 		});		

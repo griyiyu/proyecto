@@ -8,11 +8,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import nxt.simulator.EnvironmentConfiguration;
+import nxt.simulator.EnvironmentPersistance;
 
 public class EnvironmentConfigurationDao {
 	
-	public void saveEnvironment(EnvironmentConfiguration environment, File file) {
+	public void saveEnvironment(EnvironmentPersistance environment, File file) {
 		ObjectOutputStream oos;
         try {
 			FileOutputStream fileOutputStream = new FileOutputStream(file);
@@ -26,11 +26,11 @@ public class EnvironmentConfigurationDao {
         }	
 	}	
 	
-	public EnvironmentConfiguration getEnvironment(File file) {
-		EnvironmentConfiguration savedEnvironment = null;
+	public EnvironmentPersistance getEnvironment(File file) {
+		EnvironmentPersistance savedEnvironment = null;
         try {
 	        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
-	        savedEnvironment = (EnvironmentConfiguration) ois.readObject();
+	        savedEnvironment = (EnvironmentPersistance) ois.readObject();
 	        ois.close();
         } catch (FileNotFoundException e) {
 	        e.printStackTrace();
