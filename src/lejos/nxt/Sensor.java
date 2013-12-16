@@ -1,6 +1,6 @@
 package lejos.nxt;
 
-import nxt.simulator.Environment;
+import nxt.simulator.EnvironmentConfiguration;
 import nxt.simulator.Part;
 import tools.AdministratorConstants;
 import ch.aplu.jgamegrid.Location;
@@ -8,7 +8,7 @@ import ch.aplu.jgamegrid.Location;
 
 public abstract class Sensor extends Part {
 
-	protected static Environment environment;
+	protected static EnvironmentConfiguration environment;
 	
 	protected static final Location pos1 = new Location(40, 10);
 	protected static final Location pos2 = new Location(40, 0);
@@ -62,11 +62,11 @@ public abstract class Sensor extends Part {
 		return port;
 	}
 
-	public static Environment getEnvironment() {
+	public static EnvironmentConfiguration getEnvironment() {
 		return environment;
 	}
 
-	public static void setEnvironment(Environment world) {
+	public static void setEnvironment(EnvironmentConfiguration world) {
 		Sensor.environment = world;
 	}
 

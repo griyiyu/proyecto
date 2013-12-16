@@ -9,7 +9,7 @@ import ch.aplu.jgamegrid.Location;
 
 public class TouchSensor extends Sensor {
 
-	protected static int collisionRadius = 15;//9;
+	protected static int collisionRadius = 15;
 	
 	protected boolean touchValue = false;
 
@@ -45,16 +45,6 @@ public class TouchSensor extends Sensor {
 			setTouchValue(false);
 		}
 	}	
-/*
-	public boolean isColliding() {
-		for (Actor obstacle : gameGrid.getActors(Obstacle.class)) {
-			if (gameGrid.isActorColliding(obstacle, this)) {
-				return true;
-			}
-		}
-		return false;
-	}
-*/
 	
 	public boolean isColliding() {
 		for (Actor obstacle : getEnvironment().getActors(Obstacle.class)) {

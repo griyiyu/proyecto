@@ -15,7 +15,7 @@ import ch.aplu.jgamegrid.Location;
 public class UltrasonicSensor extends Sensor {
 
 	private static Point collisionCenter = new Point(0, 0);
-	private static int collisionRadius = 12;//9;	
+	private static int collisionRadius = 12;	
 
 	private Part aux;
 	private int ultrasonicValue = 255;
@@ -27,14 +27,6 @@ public class UltrasonicSensor extends Sensor {
 		environment.addPart(this);		
 		addActorCollisionListener(this);
 		setCollisionCircle(collisionCenter, collisionRadius);
-		
-		//Se instancia un actor del mismo tamaño del sensor para realizar los calculos auxiliares.
-		aux = ultrasonicAux();
-		addActorCollisionListener(getAux());
-		setCollisionCircle(collisionCenter, collisionRadius);
-
-		getAux().hide();
-		environment.addPart(getAux());
 	}
 	
 	public Part ultrasonicAux() {
@@ -71,35 +63,35 @@ public class UltrasonicSensor extends Sensor {
 		} catch (NullPointerException npe) {
 			
 		}
-		
-		
-		while (!colliding){
-
+		//Si no hay obstaculos entonces devuelve el valor por defecto.
+		if (!(gameGrid.getActors(Obstacle.class).size() > 0)) {
+			return distance;
+		}
+		while (!colliding){			
 			//Revisa si está colisionando y devuelve la distancia en caso de estar colisionando.
 			for (Actor a : gameGrid.getActors(Obstacle.class)) {
-//				if (gameGrid.isActorColliding(a, aux) || !(aux.isMoveValid())) {
-				if ((traveledDistance >= 200) || gameGrid.isActorColliding(a, getAux()) || !(getAux().isMoveValid())) {
+				if (gameGrid.isActorColliding(a, aux) || !(aux.isMoveValid())) {
 					distance = (int)Math.round((Math.sqrt(Math.pow((xNew-xInit), 2)+ Math.pow((yNew-yInit), 2))));
 					colliding = true;
-					//return (int)Math.round((Math.sqrt(Math.pow((xNew-xInit), 2)+ Math.pow((yNew-yInit), 2))));
 				}
 			}
-			traveledDistance = traveledDistance + 5;
-			
-			// Calcula la posición x del robot, se incrementa 1 pixel en x en la direccion del sensor.
-			xNew = xNew + 5 * Math.cos((float)tita * (Math.PI / (float)180));
-			// Calcula la posición y del robot, se incrementa 1 pixel en y en la direccion del sensor.
-			yNew = yNew + 5 * Math.sin((float)tita * (Math.PI / (float)180));
-			int xPosition = (int)Math.round(xNew);
-			int yPosition = (int)Math.round(yNew);
-			// Se asigna la nueva posición a la parte auxiliar para el calculo de distancia.
-			getAux().setLocation(new Location(xPosition,yPosition));
+			if (!colliding) {
+				traveledDistance = traveledDistance + 5;
+				
+				// Calcula la posición x del robot, se incrementa 1 pixel en x en la direccion del sensor.
+				xNew = xNew + 5 * Math.cos((float)tita * (Math.PI / (float)180));
+				// Calcula la posición y del robot, se incrementa 1 pixel en y en la direccion del sensor.
+				yNew = yNew + 5 * Math.sin((float)tita * (Math.PI / (float)180));
+				int xPosition = (int)Math.round(xNew);
+				int yPosition = (int)Math.round(yNew);
+				// Se asigna la nueva posición a la parte auxiliar para el calculo de distancia.
+				getAux().setLocation(new Location(xPosition,yPosition));
+			}
 		}	
 		getAux().hide();
 		//5 pixels = 1 cm.
 		distance /= 5;
-//		return distance >= 170 ? 255 : distance;
-		return distance >= 20 ? 255 : distance;
+		return distance >= 170 ? 255 : distance;
 	}
 	
 	/**
@@ -123,8 +115,5 @@ public class UltrasonicSensor extends Sensor {
 
 	public void setAux(Part aux) {
 		this.aux = aux;
-	}
-	
-	
-	
+	}	
 }

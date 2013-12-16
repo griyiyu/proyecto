@@ -105,7 +105,6 @@ public class EnvironmentUI extends JInternalFrame implements ActionListener {
 		environment = new Environment(this);
 		environment.addMouseListener(environment, GGMouse.lClick
 				| GGMouse.lDrag | GGMouse.lPress | GGMouse.lRelease);
-//				| GGMouse.rPress);
 		centerPanel.add(environment, BorderLayout.CENTER);
 	
 		// Se crea el panel de configuración del ambiente y sus componentes

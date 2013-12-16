@@ -81,7 +81,9 @@ public class RobotCar extends Actor implements AdministratorConstants {
 			 * Las velocidades vienen dadas en grados/seg, se divide por 1000 para pasar a ms y luego se multiplica por el 
 			 * tiempo de simulacion dado en ms.
 			 */
-			tita = tita + ((RADIO_WHEEL/wheelDistance) *  (((double)(speedB - speedA)/1000)*SIMULATION_PERIOD));
+			if (speedA != speedB) {
+				tita = tita + ((RADIO_WHEEL/wheelDistance) *  (((double)(speedB - speedA)/1000)*SIMULATION_PERIOD));
+			}
 			// Calcula la posición x del robot
 			x = x + ((speedB2 + speedA2)/2) * Math.cos((float)tita * (Math.PI / (float)180));
 			// Calcula la posición y del robot
