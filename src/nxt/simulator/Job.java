@@ -28,15 +28,12 @@ public class Job implements Runnable {
 		} catch (InstantiationException ie) {
 			System.out.println("InstantiationException: " + ie.getMessage());
 			JOptionPane.showInputDialog(internalFrameUI, "No se puede instanciar la clase " + lejosClassName);
-			//ie.printStackTrace();
 		} catch (IllegalAccessException iae) {
 			System.out.println("IllegalAccessException: " + iae.getMessage());
-			//iae.printStackTrace();
 		} catch (ClassNotFoundException cnfe) {
 			System.out.println("ClassNotFoundException: " + cnfe.getMessage());
-			//cnfe.printStackTrace();
 		} catch (Exception e) {
-			e.printStackTrace();
+
 		}
 	}
 
