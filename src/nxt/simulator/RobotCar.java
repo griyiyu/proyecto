@@ -23,7 +23,7 @@ public class RobotCar extends Actor implements AdministratorConstants {
 	/**
 	 * Factor de corrección por el rosamiento en el suelo etc.
 	 */
-	protected static final double FACTOR_WHEEL = -0.3;
+	protected static final double FACTOR_WHEEL = 0.3;
 	
 	
 	/**
